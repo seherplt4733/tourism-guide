@@ -15,3 +15,4 @@
 /Users/seherpolat/tourism-guide/TourismGuide.Business/obj/Debug/net8.0/refint/TourismGuide.Business.dll
 /Users/seherpolat/tourism-guide/TourismGuide.Business/obj/Debug/net8.0/TourismGuide.Business.pdb
 /Users/seherpolat/tourism-guide/TourismGuide.Business/obj/Debug/net8.0/ref/TourismGuide.Business.dll
+/Users/seherpolat/tourism-guide/TourismGuide.Business/obj/Debug/net8.0/TourismGuide.Business.sourcelink.json

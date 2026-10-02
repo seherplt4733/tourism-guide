@@ -147,3 +147,4 @@
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.pdb
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.genruntimeconfig.cache
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/ref/TourismGuide.Web.dll
+/Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.sourcelink.json

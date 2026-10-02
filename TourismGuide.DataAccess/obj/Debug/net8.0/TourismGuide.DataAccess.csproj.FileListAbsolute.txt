@@ -15,3 +15,4 @@
 /Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.pdb
 /Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.genruntimeconfig.cache
 /Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/ref/TourismGuide.DataAccess.dll
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.sourcelink.json

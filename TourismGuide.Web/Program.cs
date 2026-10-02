@@ -8,8 +8,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Application Services (Dependency Injection)
-builder.Services.AddScoped<IPlaceService, PlaceService>();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IPlaceService, PlaceService>();

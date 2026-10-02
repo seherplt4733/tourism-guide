@@ -9,3 +9,4 @@
 /Users/seherpolat/tourism-guide/TourismGuide.Entity/obj/Debug/net8.0/refint/TourismGuide.Entity.dll
 /Users/seherpolat/tourism-guide/TourismGuide.Entity/obj/Debug/net8.0/TourismGuide.Entity.pdb
 /Users/seherpolat/tourism-guide/TourismGuide.Entity/obj/Debug/net8.0/ref/TourismGuide.Entity.dll
+/Users/seherpolat/tourism-guide/TourismGuide.Entity/obj/Debug/net8.0/TourismGuide.Entity.sourcelink.json
