@@ -1,0 +1,220 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+/* Kart hover efekti */
+.card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+.card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ===================================
+   GetYourGuide Tarzı Tema
+   =================================== */
+
+:root {
+    --gyg-primary: #FF5533;
+    --gyg-primary-dark: #E63E1F;
+    --gyg-dark: #1a1a1a;
+    --gyg-gray-bg: #f8f9fa;
+}
+
+/* HERO */
+.gyg-hero {
+    background: linear-gradient(135deg, #FF5533 0%, #FF8A5B 100%);
+    padding: 80px 20px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.gyg-hero h1 {
+    font-weight: 800;
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.gyg-hero .lead {
+    font-size: 1.1rem;
+    opacity: 0.95;
+}
+
+.gyg-hero .search-bar {
+    background: white;
+    border-radius: 999px;
+    padding: 8px;
+    display: flex;
+    max-width: 700px;
+    margin: 32px auto 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.gyg-hero .search-bar input {
+    border: none;
+    flex: 1;
+    padding: 12px 24px;
+    font-size: 1rem;
+    outline: none;
+    border-radius: 999px;
+}
+
+.gyg-hero .search-bar button {
+    background: var(--gyg-primary);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+}
+
+.gyg-hero .search-bar button:hover {
+    background: var(--gyg-primary-dark);
+}
+
+/* KATEGORİ PILL'LERİ */
+.category-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: 1px solid #e0e0e0;
+    background: white;
+    color: #333;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.category-pill:hover {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #333;
+    transform: translateY(-2px);
+}
+
+.category-pill.active {
+    background: var(--gyg-primary);
+    color: white;
+    border-color: var(--gyg-primary);
+}
+
+/* MEKAN KARTLARI */
+.place-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: white;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+}
+
+.place-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.place-card img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.place-card:hover img {
+    transform: scale(1.05);
+}
+
+.place-card .badge-category {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    background: rgba(0, 0, 0, 0.75);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    z-index: 2;
+}
+
+.place-card .btn-heart {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 2;
+    transition: transform 0.2s;
+}
+
+.place-card .btn-heart:hover {
+    transform: scale(1.1);
+}
+
+.place-card .price {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--gyg-dark);
+}
+
+.place-card .price-free {
+    color: #10b981;
+    font-weight: 700;
+    font-size: 1.15rem;
+}
+
+/* MOBİL UYUM */
+@media (max-width: 768px) {
+    .gyg-hero h1 {
+        font-size: 2rem;
+    }
+    .gyg-hero .search-bar {
+        flex-direction: column;
+        border-radius: 16px;
+        padding: 12px;
+    }
+    .gyg-hero .search-bar input {
+        padding: 14px 16px;
+        text-align: center;
+    }
+    .gyg-hero .search-bar button {
+        padding: 14px;
+        width: 100%;
+    }
+}

@@ -1,0 +1,123 @@
+﻿@model List<TourismGuide.Entity.Place>
+@{
+    ViewData["Title"] = "Seyahat Etmeye Değer Deneyimler";
+    var currentCategoryId = ViewBag.CurrentCategoryId as int?;
+    var searchKeyword = ViewBag.SearchKeyword as string;
+    var categories = ViewBag.Categories as List<TourismGuide.Entity.Category>;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<!-- HERO -->
+<section class="gyg-hero">
+    <div class="container text-center">
+        <h1>Seyahat etmeye değer deneyimler</h1>
+        <p class="lead mb-0" style="opacity: 0.9;">
+            Gezilecek yerleri, popüler rotaları ve unutulmaz aktiviteleri keşfedin.
+        </p>
+
+        <form asp-controller="Home" asp-action="Index" method="get" class="search-bar">
+            <input type="text"
+                   name="searchKeyword"
+                   value="@searchKeyword"
+                   placeholder="Görülecek yerleri veya şehirleri arayın..." />
+            <button type="submit">
+                <i class="fa-solid fa-magnifying-glass"></i> Keşfet
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- KATEGORİLER -->
+<div class="container mt-5">
+    <div class="d-flex gap-2 overflow-auto py-2 mb-4">
+        <a asp-action="Index"
+           class="category-pill @(currentCategoryId == null ? "active" : "")">
+            <i class="fa-solid fa-layer-group"></i> Tümü
+        </a>
+        @if (categories != null)
+        {
+            foreach (var cat in categories)
+            {
+                <a asp-action="Index"
+                   asp-route-categoryId="@cat.Id"
+                   class="category-pill @(currentCategoryId == cat.Id ? "active" : "")">
+                    <i class="@cat.IconCssClass"></i> @cat.Name
+                </a>
+            }
+        }
+    </div>
+
+    <!-- BAŞLIK -->
+    <h3 class="fw-bold mb-4">
+        @if (currentCategoryId.HasValue)
+        {
+            var cat = categories?.FirstOrDefault(c => c.Id == currentCategoryId.Value);
+            @($"{cat?.Name} Kategorisindeki Yerler")
+        }
+        else if (!string.IsNullOrEmpty(searchKeyword))
+        {
+            @($"\"{searchKeyword}\" için sonuçlar")
+        }
+        else
+        {
+            @("Ankara ve Çevresinde Yapılacak Şeyler")
+        }
+    </h3>
+
+    <!-- KARTLAR -->
+    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
+        @if (Model != null && Model.Count > 0)
+        {
+            foreach (var item in Model)
+            {
+                <div class="col">
+                    <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id"
+                       class="text-decoration-none text-reset">
+                        <div class="place-card position-relative">
+                            <div class="position-relative">
+                                <img src="@item.ImageUrl" alt="@item.Name" />
+                                <span class="badge-category">@item.Category.Name</span>
+                                <button type="button"
+                                        class="btn-heart"
+                                        onclick="event.preventDefault(); event.stopPropagation();">
+                                    <i class="fa-regular fa-heart text-danger"></i>
+                                </button>
+                            </div>
+                            <div class="p-3">
+                                <div class="d-flex align-items-center mb-2 small">
+                                    <i class="fa-solid fa-star text-warning me-1"></i>
+                                    <span class="fw-bold me-1">@item.Rating</span>
+                                    <span class="text-muted">(Popüler)</span>
+                                </div>
+                                <h5 class="fw-bold mb-1">@item.Name</h5>
+                                <p class="text-muted small mb-3">@item.ShortDescription</p>
+
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                    <small class="text-muted">
+                                        <i class="fa-solid fa-location-dot me-1"></i>@item.City.Name
+                                    </small>
+                                    @if (item.IsFree)
+                                    {
+                                        <span class="price price-free">Ücretsiz</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="price">₺@item.Price.ToString("0.##")</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <i class="fa-solid fa-face-frown text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">Aradığınız kriterlere uygun mekan bulunamadı.</p>
+            </div>
+        }
+    </div>
+</div>

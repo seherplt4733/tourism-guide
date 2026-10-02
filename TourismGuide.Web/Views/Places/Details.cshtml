@@ -1,0 +1,246 @@
+@model TourismGuide.Web.Models.PlaceDetailsViewModel
+@{
+    ViewData["Title"] = Model.Place.Name;
+    var place = Model.Place;
+}
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+<style>
+    .hero-image {
+        height: 420px;
+        object-fit: cover;
+        width: 100%;
+        border-radius: 1rem;
+    }
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 1rem;
+        z-index: 1;
+    }
+    .info-card {
+        border-radius: 1rem;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .info-item:last-child { border-bottom: none; }
+    .info-item i {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        background: #eef4ff;
+        color: #2563eb;
+        flex-shrink: 0;
+    }
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        background: #fff4d6;
+        color: #b45309;
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-weight: 700;
+    }
+</style>
+
+<div class="container py-4">
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@place.City.Name</a></li>
+            <li class="breadcrumb-item active">@place.Name</li>
+        </ol>
+    </nav>
+
+    <!-- Hero Görsel -->
+    <div class="position-relative mb-4">
+        <img src="@place.ImageUrl" alt="@place.Name" class="hero-image shadow-sm" />
+        <span class="badge bg-dark bg-opacity-75 position-absolute top-0 start-0 m-4 px-3 py-2 rounded-pill">
+            <i class="@place.Category.IconCssClass me-1"></i> @place.Category.Name
+        </span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sol: İçerik -->
+        <div class="col-lg-8">
+
+            <!-- Başlık ve Puan -->
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+                <div>
+                    <h1 class="fw-bold mb-1">@place.Name</h1>
+                    <p class="text-muted mb-0">
+                        <i class="fa-solid fa-location-dot me-1"></i> @place.Address
+                    </p>
+                </div>
+                <div class="rating-badge">
+                    <i class="fa-solid fa-star me-1"></i> @place.Rating
+                </div>
+            </div>
+
+            <!-- Kısa Açıklama -->
+            <p class="lead text-secondary">@place.ShortDescription</p>
+
+            <!-- Tam Açıklama -->
+            <div class="info-card p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fa-solid fa-circle-info text-primary me-2"></i> Hakkında
+                </h5>
+                <p class="mb-0 text-secondary" style="line-height: 1.8;">@place.FullDescription</p>
+            </div>
+
+            <!-- Harita -->
+            <div class="info-card p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fa-solid fa-map-location-dot text-primary me-2"></i> Konum
+                </h5>
+                <div id="map"></div>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=@place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),@place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                   target="_blank"
+                   class="btn btn-outline-primary mt-3">
+                    <i class="fa-solid fa-diamond-turn-right me-2"></i> Yol Tarifi Al
+                </a>
+            </div>
+
+            <!-- Yorumlar -->
+            <div class="info-card p-4 mb-4">
+                <h5 class="fw-bold mb-3">
+                    <i class="fa-solid fa-comments text-primary me-2"></i> Yorumlar
+                    <span class="badge bg-secondary ms-2">@place.Reviews.Count</span>
+                </h5>
+                @if (place.Reviews.Count == 0)
+                {
+                    <p class="text-muted mb-0">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                }
+                else
+                {
+                    foreach (var review in place.Reviews)
+                    {
+                        <div class="border-bottom py-3">
+                            <strong>@review.Comment</strong>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Sağ: Bilgi Kartı -->
+        <div class="col-lg-4">
+            <div class="info-card p-4 sticky-top" style="top: 20px;">
+
+                <!-- Ücret -->
+                <div class="text-center mb-4">
+                    @if (place.IsFree)
+                    {
+                        <div class="display-6 fw-bold text-success">Ücretsiz</div>
+                        <small class="text-muted">Giriş ücreti yok</small>
+                    }
+                    else
+                    {
+                        <div class="display-6 fw-bold text-dark">₺@place.Price.ToString("0.##")</div>
+                        <small class="text-muted">Kişi başı giriş</small>
+                    }
+                </div>
+
+                <hr />
+
+                <!-- Bilgiler -->
+                <div class="info-item">
+                    <i class="fa-solid fa-city"></i>
+                    <div>
+                        <small class="text-muted d-block">Şehir</small>
+                        <strong>@place.City.Name</strong>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fa-solid fa-tag"></i>
+                    <div>
+                        <small class="text-muted d-block">Kategori</small>
+                        <strong>@place.Category.Name</strong>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <i class="fa-solid fa-map-pin"></i>
+                    <div>
+                        <small class="text-muted d-block">Koordinatlar</small>
+                        <strong>@place.Latitude, @place.Longitude</strong>
+                    </div>
+                </div>
+
+                <!-- Aksiyonlar -->
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-primary btn-lg">
+                        <i class="fa-regular fa-heart me-2"></i> Favorilere Ekle
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-share-nodes me-2"></i> Paylaş
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Benzer Yerler -->
+    @if (Model.SimilarPlaces.Count > 0)
+    {
+        <div class="mt-5">
+            <h3 class="fw-bold mb-4">Bunlar da İlginizi Çekebilir</h3>
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                @foreach (var item in Model.SimilarPlaces)
+                {
+                    <div class="col">
+                        <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                            <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover">
+                                <img src="@item.ImageUrl" class="card-img-top" style="height: 180px; object-fit: cover;" alt="@item.Name" />
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold text-dark mb-2">@item.Name</h5>
+                                    <p class="card-text text-muted small">@item.ShortDescription</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var lat = @place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var lng = @place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            var placeName = "@Html.Raw(place.Name.Replace("\\", "\\\\").Replace("\"", "\\\""))";
+
+            var map = L.map('map').setView([lat, lng], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            L.marker([lat, lng])
+                .addTo(map)
+                .bindPopup('<strong>' + placeName + '</strong>')
+                .openPopup();
+        });
+    </script>
+}

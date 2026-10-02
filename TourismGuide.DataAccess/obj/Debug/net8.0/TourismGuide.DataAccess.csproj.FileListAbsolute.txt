@@ -1,0 +1,17 @@
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.DataAccess.deps.json
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.DataAccess.runtimeconfig.json
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.DataAccess.dll
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.DataAccess.pdb
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.Entity.dll
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/bin/Debug/net8.0/TourismGuide.Entity.pdb
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.csproj.AssemblyReference.cache
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.GeneratedMSBuildEditorConfig.editorconfig
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.AssemblyInfoInputs.cache
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.AssemblyInfo.cs
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.csproj.CoreCompileInputs.cache
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismG.B9C35F1D.Up2Date
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.dll
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/refint/TourismGuide.DataAccess.dll
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.pdb
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/TourismGuide.DataAccess.genruntimeconfig.cache
+/Users/seherpolat/tourism-guide/TourismGuide.DataAccess/obj/Debug/net8.0/ref/TourismGuide.DataAccess.dll
