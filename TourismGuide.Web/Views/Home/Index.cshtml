@@ -1,123 +1,311 @@
 ﻿@model List<TourismGuide.Entity.Place>
 @{
-    ViewData["Title"] = "Seyahat Etmeye Değer Deneyimler";
-    var currentCategoryId = ViewBag.CurrentCategoryId as int?;
-    var searchKeyword = ViewBag.SearchKeyword as string;
-    var categories = ViewBag.Categories as List<TourismGuide.Entity.Category>;
+    ViewData["Title"] = "Ana Sayfa";
+    ViewData["IsHome"] = true;
 }
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-<!-- HERO -->
-<section class="gyg-hero">
-    <div class="container text-center">
-        <h1>Seyahat etmeye değer deneyimler</h1>
-        <p class="lead mb-0" style="opacity: 0.9;">
-            Gezilecek yerleri, popüler rotaları ve unutulmaz aktiviteleri keşfedin.
-        </p>
-
-        <form asp-controller="Home" asp-action="Index" method="get" class="search-bar">
-            <input type="text"
-                   name="searchKeyword"
-                   value="@searchKeyword"
-                   placeholder="Görülecek yerleri veya şehirleri arayın..." />
-            <button type="submit">
-                <i class="fa-solid fa-magnifying-glass"></i> Keşfet
-            </button>
-        </form>
-    </div>
-</section>
-
-<!-- KATEGORİLER -->
-<div class="container mt-5">
-    <div class="d-flex gap-2 overflow-auto py-2 mb-4">
-        <a asp-action="Index"
-           class="category-pill @(currentCategoryId == null ? "active" : "")">
-            <i class="fa-solid fa-layer-group"></i> Tümü
-        </a>
-        @if (categories != null)
-        {
-            foreach (var cat in categories)
-            {
-                <a asp-action="Index"
-                   asp-route-categoryId="@cat.Id"
-                   class="category-pill @(currentCategoryId == cat.Id ? "active" : "")">
-                    <i class="@cat.IconCssClass"></i> @cat.Name
-                </a>
-            }
-        }
-    </div>
-
-    <!-- BAŞLIK -->
-    <h3 class="fw-bold mb-4">
-        @if (currentCategoryId.HasValue)
-        {
-            var cat = categories?.FirstOrDefault(c => c.Id == currentCategoryId.Value);
-            @($"{cat?.Name} Kategorisindeki Yerler")
-        }
-        else if (!string.IsNullOrEmpty(searchKeyword))
-        {
-            @($"\"{searchKeyword}\" için sonuçlar")
-        }
-        else
-        {
-            @("Ankara ve Çevresinde Yapılacak Şeyler")
-        }
-    </h3>
-
-    <!-- KARTLAR -->
-    <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
-        @if (Model != null && Model.Count > 0)
-        {
-            foreach (var item in Model)
-            {
-                <div class="col">
-                    <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id"
-                       class="text-decoration-none text-reset">
-                        <div class="place-card position-relative">
-                            <div class="position-relative">
-                                <img src="@item.ImageUrl" alt="@item.Name" />
-                                <span class="badge-category">@item.Category.Name</span>
-                                <button type="button"
-                                        class="btn-heart"
-                                        onclick="event.preventDefault(); event.stopPropagation();">
-                                    <i class="fa-regular fa-heart text-danger"></i>
-                                </button>
-                            </div>
-                            <div class="p-3">
-                                <div class="d-flex align-items-center mb-2 small">
-                                    <i class="fa-solid fa-star text-warning me-1"></i>
-                                    <span class="fw-bold me-1">@item.Rating</span>
-                                    <span class="text-muted">(Popüler)</span>
-                                </div>
-                                <h5 class="fw-bold mb-1">@item.Name</h5>
-                                <p class="text-muted small mb-3">@item.ShortDescription</p>
-
-                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                                    <small class="text-muted">
-                                        <i class="fa-solid fa-location-dot me-1"></i>@item.City.Name
-                                    </small>
-                                    @if (item.IsFree)
-                                    {
-                                        <span class="price price-free">Ücretsiz</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="price">₺@item.Price.ToString("0.##")</span>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </a>
+<!-- About Start -->
+<div class="container-fluid py-5" id="about">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s" style="min-height: 400px;">
+                <div class="position-relative h-100">
+                    <img class="img-fluid position-absolute w-100 h-100" src="/img/about.jpg" alt="Hakkımızda" style="object-fit: cover;">
                 </div>
-            }
-        }
-        else
-        {
-            <div class="col-12 text-center py-5">
-                <i class="fa-solid fa-face-frown text-muted" style="font-size: 3rem;"></i>
-                <p class="text-muted mt-3">Aradığınız kriterlere uygun mekan bulunamadı.</p>
             </div>
-        }
+            <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.3s">
+                <h6 class="section-title bg-white text-start text-primary pe-3">Hakkımızda</h6>
+                <h1 class="mb-4"><span class="text-primary">Tourist</span> Rehberine Hoş Geldiniz</h1>
+                <p class="mb-4">Türkiye'nin ve dünyadaki en gözde turistik mekanlarını keşfetmeniz için rehberlik ediyoruz. Şehir rehberlerimiz ve detaylı mekan bilgileri ile tatilinizi kolayca planlayın.</p>
+                <div class="row gy-2 gx-4 mb-4">
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Birinci Sınıf Rehberlik</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Seçkin Otel Önerileri</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Konaklama Seçenekleri</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>Güvenilir Ulaşım Bilgisi</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>150+ Popüler Şehir Turu</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="mb-0"><i class="fa fa-arrow-right text-primary me-2"></i>7/24 Destek</p>
+                    </div>
+                </div>
+                <a class="btn btn-primary py-3 px-5 mt-2" href="#service">Daha Fazla Bilgi</a>
+            </div>
+        </div>
     </div>
 </div>
+<!-- About End -->
+
+
+<!-- Service Start (Orijinal Şablondaki 8'li Kart Düzeni) -->
+<div class="container-fluid py-5" id="service">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Hizmetlerimiz</h6>
+            <h1 class="mb-5">Neler Sunuyoruz?</h1>
+        </div>
+        <div class="row g-4 mb-4">
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-globe text-primary mb-4"></i>
+                        <h5>Dünya Çapında Turlar</h5>
+                        <p>Popüler destinasyonlar ve tarihi mekanlar hakkında en güncel bilgiler.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-hotel text-primary mb-4"></i>
+                        <h5>Otel Rehberi</h5>
+                        <p>Bütçenize ve konforunuza uygun en iyi konaklama yerleri.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-user text-primary mb-4"></i>
+                        <h5>Gezi Rehberleri</h5>
+                        <p>Şehirlerin kültürünü ve gezilecek yerlerini keşfedin.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-cog text-primary mb-4"></i>
+                        <h5>Etkinlik Yönetimi</h5>
+                        <p>Şehirlerdeki festival, konser ve etkinlik takibini yapın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.1s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-globe text-primary mb-4"></i>
+                        <h5>Dünya Çapında Turlar</h5>
+                        <p>Popüler destinasyonlar ve tarihi mekanlar hakkında en güncel bilgiler.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.3s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-hotel text-primary mb-4"></i>
+                        <h5>Otel Rehberi</h5>
+                        <p>Bütçenize ve konforunuza uygun en iyi konaklama yerleri.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.5s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-user text-primary mb-4"></i>
+                        <h5>Gezi Rehberleri</h5>
+                        <p>Şehirlerin kültürünü ve gezilecek yerlerini keşfedin.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 wow fadeInUp" data-wow-delay="0.7s">
+                <div class="service-item rounded pt-3">
+                    <div class="p-4">
+                        <i class="fa fa-3x fa-cog text-primary mb-4"></i>
+                        <h5>Etkinlik Yönetimi</h5>
+                        <p>Şehirlerdeki festival, konser ve etkinlik takibini yapın.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Service End -->
+
+
+<!-- Destination Start (Orijinal Şablonun Öne Çıkan Görsel Tasarımı) -->
+<div class="container-xxl py-5 destination" id="destination">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Destinasyonlar</h6>
+            <h1 class="mb-5">Popüler Destinasyonlar</h1>
+        </div>
+        <div class="row g-3 mb-5">
+            <div class="col-lg-7 col-md-6">
+                <div class="row g-3">
+                    <div class="col-lg-12 col-md-12 wow zoomIn" data-wow-delay="0.1s">
+                        <a class="position-relative d-block overflow-hidden" href="">
+                            <img class="img-fluid" src="/img/destination-1.jpg" alt="">
+                            <div class="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">30% İNDİRİM</div>
+                            <div class="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">Tayland</div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 col-md-12 wow zoomIn" data-wow-delay="0.3s">
+                        <a class="position-relative d-block overflow-hidden" href="">
+                            <img class="img-fluid" src="/img/destination-2.jpg" alt="">
+                            <div class="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">25% İNDİRİM</div>
+                            <div class="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">Malezya</div>
+                        </a>
+                    </div>
+                    <div class="col-lg-6 col-md-12 wow zoomIn" data-wow-delay="0.5s">
+                        <a class="position-relative d-block overflow-hidden" href="">
+                            <img class="img-fluid" src="/img/destination-3.jpg" alt="">
+                            <div class="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">35% İNDİRİM</div>
+                            <div class="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">Avustralya</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5 col-md-6 wow zoomIn" data-wow-delay="0.7s" style="min-height: 350px;">
+                <a class="position-relative d-block h-100 overflow-hidden" href="">
+                    <img class="img-fluid position-absolute w-100 h-100" src="/img/destination-4.jpg" alt="" style="object-fit: cover;">
+                    <div class="bg-white text-danger fw-bold position-absolute top-0 start-0 m-3 py-1 px-2">20% İNDİRİM</div>
+                    <div class="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-2">Endonezya</div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Veritabanından Dinamik Eklenen Mekanlar -->
+<div class="text-center wow fadeInUp mt-5" data-wow-delay="0.1s">
+    <h3 class="mb-4 text-primary">Sistemde Kayıtlı Gezilecek Yerler</h3>
+</div>
+<div class="row g-4">
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var place in Model)
+        {
+            var placeTitle = !string.IsNullOrEmpty(place.Name) ? place.Name : (!string.IsNullOrEmpty(place.Title) ? place.Title : "Mekan");
+            <div class="col-lg-4 col-md-6 wow zoomIn" data-wow-delay="0.1s">
+                <div class="package-item border rounded overflow-hidden shadow-sm h-100 d-flex flex-column bg-white">
+                    <div class="overflow-hidden position-relative" style="height: 220px;">
+                        <img class="img-fluid w-100 h-100" src="@place.ImageUrl" alt="@placeTitle" style="object-fit: cover;" onerror="this.src='/img/destination-1.jpg';">
+                        <div class="bg-white text-primary fw-bold position-absolute bottom-0 end-0 m-3 py-1 px-3 rounded shadow-sm">
+                            <i class="fa fa-map-marker-alt me-1"></i>@(place.City?.Name ?? "Türkiye")
+                        </div>
+                    </div>
+                    <div class="p-4 d-flex flex-column flex-grow-1">
+                        <h5 class="mb-2">@placeTitle</h5>
+                        <div class="mb-3">
+                            <small class="fa fa-star text-warning"></small>
+                            <small class="fw-bold me-2">@place.Rating</small>
+                            <span class="badge bg-primary">@(place.Category?.Name ?? "Popüler")</span>
+                        </div>
+                        <p class="text-body mb-3 flex-grow-1">@place.ShortDescription</p>
+                        <div class="pt-2 border-top">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="fw-bold text-success fs-5">
+                                    @(place.IsFree ? "Giriş Ücretsiz" : $"₺{place.Price}")
+                                </span>
+                            </div>
+                            <!-- YENİ EKLENEN DETAY & YORUM BUTONU -->
+                            <a asp-controller="Places" asp-action="Details" asp-route-id="@place.Id" class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fa-solid fa-eye me-1"></i> Detayları Gör & Yorum Yap
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12 text-center py-4">
+            <p class="text-muted fs-5">Henüz eklenmiş dinamik mekan bulunmuyor.</p>
+        </div>
+    }
+</div>
+<!-- Destination End -->
+
+
+<!-- Contact Start -->
+<div class="container-fluid py-5" id="contact">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">İletişim</h6>
+            <h1 class="mb-5">Bize Ulaşın</h1>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                <h5>İletişim Bilgilerimiz</h5>
+                <p class="mb-4">İletişim formunu doldurarak sorularınızı bize iletebilirsiniz.</p>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary" style="width: 50px; height: 50px;">
+                        <i class="fa fa-map-marker-alt text-white"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="text-primary">Ofis</h5>
+                        <p class="mb-0">123 Sokak, New York, ABD</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center mb-4">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary" style="width: 50px; height: 50px;">
+                        <i class="fa fa-phone-alt text-white"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="text-primary">Telefon</h5>
+                        <p class="mb-0">+012 345 67890</p>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary" style="width: 50px; height: 50px;">
+                        <i class="fa fa-envelope-open text-white"></i>
+                    </div>
+                    <div class="ms-3">
+                        <h5 class="text-primary">E-posta</h5>
+                        <p class="mb-0">info@example.com</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+                <iframe class="position-relative rounded w-100 h-100"
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3001156.4288297426!2d-78.01371936852176!3d42.72876761954724!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4ccc4bf0f123a5a9%3A0xddcfc6c1de189567!2sNew%20York%2C%20USA!5e0!3m2!1sen!2sbd!4v1603794290143!5m2!1sen!2sbd"
+                    frameborder="0" style="min-height: 300px; border:0;" allowfullscreen="" aria-hidden="false"
+                    tabindex="0"></iframe>
+            </div>
+            <div class="col-lg-4 col-md-12 wow fadeInUp" data-wow-delay="0.5s">
+                <form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="name" placeholder="Adınız">
+                                <label for="name">Adınız</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="email" placeholder="E-posta Adresiniz">
+                                <label for="email">E-posta Adresiniz</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" id="subject" placeholder="Konu">
+                                <label for="subject">Konu</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" placeholder="Mesajınızı buraya yazın" id="message" style="height: 100px"></textarea>
+                                <label for="message">Mesajınız</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <button class="btn btn-primary w-100 py-3" type="submit">Mesaj Gönder</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Contact End -->

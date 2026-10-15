@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TourismGuide.DataAccess;
-using TourismGuide.Web.Models;
+using TourismGuide.Entity;
 
 namespace TourismGuide.Web.Controllers
 {
@@ -14,42 +14,46 @@ namespace TourismGuide.Web.Controllers
             _context = context;
         }
 
-        // URL: /places/details/1
-        // veya Razor'da: asp-controller="Places" asp-action="Details" asp-route-id="1"
-        public async Task<IActionResult> Details(int id)
+        // Mekan Detay Sayfası
+        public IActionResult Details(int id)
         {
-            if (id <= 0)
-            {
-                return BadRequest("Geçersiz mekan Id.");
-            }
-
-            var place = await _context.Places
+            var place = _context.Places
                 .Include(p => p.City)
                 .Include(p => p.Category)
-                .Include(p => p.Reviews)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .Include(p => p.Reviews.Where(r => r.IsApproved)) // Yalnızca onaylı yorumları getirir
+                .FirstOrDefault(p => p.Id == id);
 
             if (place == null)
             {
-                return NotFound($"Mekan bulunamadı: {id}");
+                return NotFound();
             }
 
-            var similar = await _context.Places
-                .Include(p => p.City)
-                .Include(p => p.Category)
-                .Where(p => p.CityId == place.CityId
-                         && p.CategoryId == place.CategoryId
-                         && p.Id != place.Id)
-                .Take(3)
-                .ToListAsync();
+            return View(place);
+        }
 
-            var vm = new PlaceDetailsViewModel
+        // Yorum Ekleme Aksiyonu (POST)
+        [HttpPost]
+        public IActionResult AddReview(int placeId, string reviewerName, string comment, int rating)
+        {
+            if (!string.IsNullOrWhiteSpace(comment) && rating >= 1 && rating <= 5)
             {
-                Place = place,
-                SimilarPlaces = similar
-            };
+                var review = new Review
+                {
+                    PlaceId = placeId,
+                    ReviewerName = string.IsNullOrWhiteSpace(reviewerName) ? "Anonim Ziyaretçi" : reviewerName,
+                    Comment = comment,
+                    Rating = rating,
+                    CreatedAt = DateTime.Now,
+                    IsApproved = false // Otomatik olarak onay bekleyen modda kaydedilir
+                };
 
-            return View(vm);
+                _context.Reviews.Add(review);
+                _context.SaveChanges();
+
+                TempData["ReviewMessage"] = "Yorumunuz alındı! Yöneticimiz inceledikten sonra yayınlanacaktır.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id = placeId });
         }
     }
 }

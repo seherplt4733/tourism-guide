@@ -30,8 +30,10 @@ namespace TourismGuide.DataAccess.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("IconCssClass")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -52,11 +54,9 @@ namespace TourismGuide.DataAccess.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -108,9 +108,14 @@ namespace TourismGuide.DataAccess.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PlaceId1")
+                        .HasColumnType("int");
+
                     b.HasKey("ItineraryId", "PlaceId");
 
                     b.HasIndex("PlaceId");
+
+                    b.HasIndex("PlaceId1");
 
                     b.ToTable("ItineraryPlaces");
                 });
@@ -147,10 +152,6 @@ namespace TourismGuide.DataAccess.Migrations
                     b.Property<double>("Longitude")
                         .HasColumnType("float");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<decimal>("Price")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -161,6 +162,11 @@ namespace TourismGuide.DataAccess.Migrations
                     b.Property<string>("ShortDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("Name");
 
                     b.HasKey("Id");
 
@@ -186,13 +192,16 @@ namespace TourismGuide.DataAccess.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("bit");
+
                     b.Property<int>("PlaceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("Rating")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("ReviewerName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -227,6 +236,10 @@ namespace TourismGuide.DataAccess.Migrations
                         .HasForeignKey("PlaceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("TourismGuide.Entity.Place", null)
+                        .WithMany("ItineraryPlaces")
+                        .HasForeignKey("PlaceId1");
 
                     b.Navigation("Itinerary");
 
@@ -282,6 +295,8 @@ namespace TourismGuide.DataAccess.Migrations
 
             modelBuilder.Entity("TourismGuide.Entity.Place", b =>
                 {
+                    b.Navigation("ItineraryPlaces");
+
                     b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618

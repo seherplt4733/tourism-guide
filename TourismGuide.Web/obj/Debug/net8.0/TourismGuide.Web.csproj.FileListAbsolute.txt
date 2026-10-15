@@ -131,6 +131,7 @@
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.MvcApplicationPartsAssemblyInfo.cache
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.RazorAssemblyInfo.cache
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.RazorAssemblyInfo.cs
+/Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.sourcelink.json
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/staticwebassets.build.json
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/staticwebassets.development.json
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/staticwebassets/msbuild.TourismGuide.Web.Microsoft.AspNetCore.StaticWebAssets.props
@@ -147,4 +148,3 @@
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.pdb
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.genruntimeconfig.cache
 /Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/ref/TourismGuide.Web.dll
-/Users/seherpolat/tourism-guide/TourismGuide.Web/obj/Debug/net8.0/TourismGuide.Web.sourcelink.json

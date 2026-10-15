@@ -1,0 +1,55 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fa-solid fa-chart-line me-2"></i>Dashboard Özet</h2>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase mb-1">Toplam Mekan</h6>
+                    <h3 class="mb-0">@ViewBag.TotalPlaces</h3>
+                </div>
+                <i class="fa-solid fa-map-location-dot fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase mb-1">Toplam Şehir</h6>
+                    <h3 class="mb-0">@ViewBag.TotalCities</h3>
+                </div>
+                <i class="fa-solid fa-city fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase mb-1">Kategoriler</h6>
+                    <h3 class="mb-0">@ViewBag.TotalCategories</h3>
+                </div>
+                <i class="fa-solid fa-layer-group fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white shadow-sm p-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="text-uppercase mb-1">Yorumlar</h6>
+                    <h3 class="mb-0">@ViewBag.TotalReviews</h3>
+                </div>
+                <i class="fa-solid fa-comments fa-2x opacity-50"></i>
+            </div>
+        </div>
+    </div>
+</div>

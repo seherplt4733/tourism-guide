@@ -26,11 +26,11 @@ namespace TourismGuide.Web.Controllers
                 .Include(p => p.Category)
                 .AsQueryable();
 
-            // Arama filtresi
+            // Arama filtresi (p.Name yerine p.Title kullanıyoruz)
             if (!string.IsNullOrEmpty(searchKeyword))
             {
                 query = query.Where(p =>
-                    p.Name.Contains(searchKeyword) ||
+                    p.Title.Contains(searchKeyword) ||
                     (p.City != null && p.City.Name.Contains(searchKeyword)) ||
                     (p.Category != null && p.Category.Name.Contains(searchKeyword)));
             }
