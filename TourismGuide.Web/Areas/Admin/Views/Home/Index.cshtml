@@ -1,0 +1,204 @@
+@{
+    ViewData["Title"] = "Yönetim Paneli";
+    var totalPlaces = ViewBag.TotalPlaces ?? 0;
+    var totalCities = ViewBag.TotalCities ?? 0;
+    var totalReviews = ViewBag.TotalReviews ?? 0;
+    var totalEvents = ViewBag.TotalEvents ?? 0;
+    var pendingReviews = ViewBag.PendingReviews ?? 0;
+    var recentPlaces = ViewBag.RecentPlaces as List<TourismGuide.Entity.Place>;
+    var recentReviews = ViewBag.RecentReviews as List<TourismGuide.Entity.Review>;
+    var upcomingEvents = ViewBag.UpcomingEvents as List<TourismGuide.Entity.Event>;
+}
+
+<!-- Welcome Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 rounded-3 text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #14141F 0%, #2a2a3f 100%); box-shadow: 0 4px 20px rgba(20,20,31,0.15);">
+            <div>
+                <h3 class="fw-bold mb-1">Hoş Geldiniz, Yönetici! 👋</h3>
+                <p class="mb-0 text-white-50">Sistemdeki turistik mekanları, şehirleri, etkinlikleri ve kullanıcı yorumlarını buradan yönetebilirsiniz.</p>
+            </div>
+            <div class="d-none d-md-block">
+                <a asp-area="Admin" asp-controller="Events" asp-action="Create" class="btn btn-primary rounded-pill px-4">
+                    <i class="fa fa-plus me-1"></i> Yeni Etkinlik Ekle
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <!-- Toplam Mekan -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="admin-card h-100 p-3 d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 56px; height: 56px; background-color: #eef2ff; color: #4f46e5;">
+                <i class="fa-solid fa-location-dot fs-4"></i>
+            </div>
+            <div>
+                <span class="text-muted small fw-semibold d-block">Toplam Mekan</span>
+                <h3 class="fw-bold mb-0 text-dark">@totalPlaces</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toplam Şehir -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="admin-card h-100 p-3 d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 56px; height: 56px; background-color: #ecfdf5; color: #10b981;">
+                <i class="fa-solid fa-city fs-4"></i>
+            </div>
+            <div>
+                <span class="text-muted small fw-semibold d-block">Toplam Şehir</span>
+                <h3 class="fw-bold mb-0 text-dark">@totalCities</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toplam Etkinlik -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="admin-card h-100 p-3 d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 56px; height: 56px; background-color: #fff7ed; color: #f97316;">
+                <i class="fa-solid fa-calendar-alt fs-4"></i>
+            </div>
+            <div>
+                <span class="text-muted small fw-semibold d-block">Aktif Etkinlikler</span>
+                <h3 class="fw-bold mb-0 text-dark">@totalEvents</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Onay Bekleyen Yorum -->
+    <div class="col-xl-3 col-sm-6">
+        <div class="admin-card h-100 p-3 d-flex align-items-center">
+            <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 56px; height: 56px; background-color: #fdf2f8; color: #db2777;">
+                <i class="fa-solid fa-comments fs-4"></i>
+            </div>
+            <div>
+                <span class="text-muted small fw-semibold d-block">Toplam / Onay Bekleyen</span>
+                <div class="d-flex align-items-baseline gap-2">
+                    <h3 class="fw-bold mb-0 text-dark">@totalReviews</h3>
+                    <span class="badge bg-light text-danger border">@pendingReviews Bekleyen</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Row -->
+<div class="row g-4">
+    <!-- Son Mekanlar -->
+    <div class="col-lg-7">
+        <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-map-pin text-primary me-2"></i>Son Eklenen Mekanlar
+                </h5>
+                <a asp-area="Admin" asp-controller="Places" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Tümünü Gör</a>
+            </div>
+
+            @if (recentPlaces != null && recentPlaces.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light small">
+                            <tr>
+                                <th>Mekan Adı</th>
+                                <th>Şehir</th>
+                                <th>Kategori</th>
+                                <th>Fiyat</th>
+                                <th>Puan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var place in recentPlaces)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            @if (!string.IsNullOrEmpty(place.ImageUrl))
+                                            {
+                                                <img src="@place.ImageUrl" alt="@place.Name" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;" />
+                                            }
+                                            <span class="fw-bold text-dark">@place.Name</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">@(place.City?.Name ?? "-")</span>
+                                    </td>
+                                    <td>
+                                        <small class="text-muted">@(place.Category?.Name ?? "-")</small>
+                                    </td>
+                                    <td>
+                                        @if (place.IsFree)
+                                        {
+                                            <span class="badge bg-success">Ücretsiz</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-dark">₺@place.Price.ToString("0.##")</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="text-warning small"><i class="fa-solid fa-star me-1"></i>@place.Rating</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted py-4 text-center mb-0">Henüz kayıtlı mekan bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Son Yorumlar -->
+    <div class="col-lg-5">
+        <div class="admin-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-comments text-primary me-2"></i>Son Değerlendirmeler
+                </h5>
+                <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Tümünü Gör</a>
+            </div>
+
+            @if (recentReviews != null && recentReviews.Count > 0)
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var rev in recentReviews)
+                    {
+                        <div class="list-group-item px-0 py-3 border-bottom">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <strong class="text-dark">@(string.IsNullOrEmpty(rev.ReviewerName) ? "Misafir" : rev.ReviewerName)</strong>
+                                <span class="text-warning small">
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        if (i <= rev.Rating)
+                                        {
+                                            <i class="fa-solid fa-star"></i>
+                                        }
+                                        else
+                                        {
+                                            <i class="fa-regular fa-star text-muted"></i>
+                                        }
+                                    }
+                                </span>
+                            </div>
+                            <small class="text-muted d-block mb-1">
+                                <i class="fa-solid fa-location-dot me-1 text-primary"></i>@(rev.Place?.Name ?? "Mekan")
+                            </small>
+                            <p class="text-secondary small mb-0 text-truncate">@rev.Comment</p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted py-4 text-center mb-0">Henüz kullanıcı yorumu bulunmamaktadır.</p>
+            }
+        </div>
+    </div>
+</div>

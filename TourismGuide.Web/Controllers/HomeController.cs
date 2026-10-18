@@ -21,6 +21,15 @@ namespace TourismGuide.Web.Controllers
             ViewBag.CurrentCategoryId = categoryId;
             ViewBag.SearchKeyword = searchKeyword;
 
+            // Tarihi geçmemiş en yakın 6 etkinliği çek
+            var now = DateTime.Now;
+            ViewBag.UpcomingEvents = await _context.Events
+                .Include(e => e.City)
+                .Where(e => e.EventDate >= now.Date)
+                .OrderBy(e => e.EventDate)
+                .Take(6)
+                .ToListAsync();
+
             var query = _context.Places
                 .Include(p => p.City)
                 .Include(p => p.Category)
@@ -28,12 +37,12 @@ namespace TourismGuide.Web.Controllers
 
             // Arama filtresi
             if (!string.IsNullOrEmpty(searchKeyword))
-            {
-                query = query.Where(p =>
-                    p.Name.Contains(searchKeyword) ||
-                    (p.City != null && p.City.Name.Contains(searchKeyword)) ||
-                    (p.Category != null && p.Category.Name.Contains(searchKeyword)));
-            }
+{
+    query = query.Where(p =>
+        p.Title.Contains(searchKeyword) ||  // Name yerine Title kullan
+        (p.City != null && p.City.Name.Contains(searchKeyword)) ||
+        (p.Category != null && p.Category.Name.Contains(searchKeyword)));
+}
 
             // Kategori filtresi
             if (categoryId.HasValue)

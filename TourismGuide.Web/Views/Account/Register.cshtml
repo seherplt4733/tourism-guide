@@ -1,0 +1,66 @@
+@model TourismGuide.Web.Models.RegisterViewModel
+@{
+    ViewData["Title"] = "Kayıt Ol";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="fw-bold mb-1 text-white">
+                        <i class="fa fa-user-plus me-2"></i>Kayıt Ol
+                    </h3>
+                    <p class="mb-0 text-white-50">Tourist ailesine katılın, favori mekanlarınızı kaydedin.</p>
+                </div>
+
+                <div class="card-body p-4 p-md-5 bg-white">
+                    <form asp-controller="Account" asp-action="Register" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small" role="alert"></div>
+
+                        <!-- Ad Soyad -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="FullName" class="form-control" id="fullNameInput" placeholder="Adınız Soyadınız" required />
+                            <label for="fullNameInput"><i class="fa fa-user me-2 text-muted"></i>Ad Soyad</label>
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- E-posta -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Email" type="email" class="form-control" id="emailInput" placeholder="ornek@email.com" required />
+                            <label for="emailInput"><i class="fa fa-envelope me-2 text-muted"></i>E-posta Adresi</label>
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Şifre -->
+                        <div class="form-floating mb-3">
+                            <input asp-for="Password" type="password" class="form-control" id="passwordInput" placeholder="Şifre" required />
+                            <label for="passwordInput"><i class="fa fa-lock me-2 text-muted"></i>Şifre (En az 6 karakter)</label>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Şifre Tekrar -->
+                        <div class="form-floating mb-4">
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" id="confirmPasswordInput" placeholder="Şifre Tekrar" required />
+                            <label for="confirmPasswordInput"><i class="fa fa-lock me-2 text-muted"></i>Şifre Tekrar</label>
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold fs-6">
+                                <i class="fa fa-check me-2"></i>Hesap Oluştur
+                            </button>
+                        </div>
+
+                        <div class="text-center pt-3 border-top">
+                            <span class="text-muted small">Zaten bir hesabınız var mı?</span>
+                            <a asp-controller="Account" asp-action="Login" class="fw-bold text-primary ms-1 small">Giriş Yap</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

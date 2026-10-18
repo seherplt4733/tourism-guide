@@ -1,0 +1,107 @@
+@model List<TourismGuide.Entity.Event>
+@{
+    ViewData["Title"] = "Etkinlikler";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">
+            <i class="fa fa-calendar-alt text-primary me-2"></i>Etkinlik Yönetimi
+        </h4>
+        <p class="text-muted small mb-0">Tüm etkinlikleri görüntüleyin, arayın ve yönetin.</p>
+    </div>
+    <a asp-area="Admin" asp-controller="Events" asp-action="Create" class="btn btn-primary rounded-pill px-4">
+        <i class="fa fa-plus me-1"></i> Yeni Etkinlik Ekle
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table id="eventsTable" class="table table-hover align-middle w-100">
+            <thead class="table-light">
+                <tr>
+                    <th style="min-width: 220px;">Etkinlik Adı</th>
+                    <th>Şehir</th>
+                    <th>Tarih</th>
+                    <th>Konum</th>
+                    <th>Fiyat</th>
+                    <th class="text-end" style="min-width: 100px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Title" class="rounded me-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded d-flex align-items-center justify-content-center text-muted me-3" style="width: 50px; height: 50px;">
+                                            <i class="fa fa-calendar-day"></i>
+                                        </div>
+                                    }
+                                    <div>
+                                        <strong class="text-dark d-block">@item.Title</strong>
+                                        <small class="text-muted text-truncate d-inline-block" style="max-width: 200px;">@item.Description</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fa fa-map-marker-alt text-primary me-1"></i>@(item.City?.Name ?? "-")
+                                </span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-dark">
+                                    @item.EventDate.ToString("dd.MM.yyyy")
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fa fa-clock me-1"></i>@item.EventDate.ToString("HH:mm")
+                                </small>
+                            </td>
+                            <td>
+                                <small class="text-secondary">@item.Location</small>
+                            </td>
+                            <td>
+                                @if (!item.Price.HasValue || item.Price.Value == 0)
+                                {
+                                    <span class="badge bg-success">Ücretsiz</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-dark">₺@item.Price.Value.ToString("N0")</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <form asp-area="Admin" asp-controller="Events" asp-action="Delete" asp-route-id="@item.Id" method="post" onsubmit="return confirm('Bu etkinliği silmek istediğinizden emin misiniz?');" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Sil">
+                                        <i class="fa fa-trash-alt me-1"></i> Sil
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#eventsTable').DataTable({
+                responsive: true,
+                order: [[2, 'asc']],
+                pageLength: 10
+            });
+        });
+    </script>
+}

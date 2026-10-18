@@ -1,78 +1,158 @@
 @model TourismGuide.Web.Models.PlaceDetailsViewModel
 @{
-    ViewData["Title"] = Model.Place.Name;
     var place = Model.Place;
+    ViewData["Title"] = place.Name;
+
+    // Google Maps Embed Query logic
+    string mapQuery;
+    if (place.Latitude != 0 && place.Longitude != 0)
+    {
+        mapQuery = $"{place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture)},{place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+    }
+    else
+    {
+        mapQuery = !string.IsNullOrEmpty(place.City?.Name) ? place.City.Name : (!string.IsNullOrEmpty(place.Address) ? place.Address : "Türkiye");
+    }
+    var mapUrl = $"https://maps.google.com/maps?q={System.Net.WebUtility.UrlEncode(mapQuery)}&t=&z=14&ie=UTF8&iwloc=&output=embed";
 }
 
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<!-- FontAwesome -->
+<!-- FontAwesome 6 -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
 <style>
+    .place-detail-container {
+        padding-top: 1.5rem;
+        padding-bottom: 4rem;
+    }
+    .hero-image-wrapper {
+        position: relative;
+        margin-bottom: 2rem;
+        border-radius: 1.25rem;
+        overflow: hidden;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
     .hero-image {
         height: 420px;
         object-fit: cover;
         width: 100%;
-        border-radius: 1rem;
+        display: block;
     }
-    #map {
-        height: 400px;
-        width: 100%;
-        border-radius: 1rem;
-        z-index: 1;
+    .hero-category-badge {
+        position: absolute;
+        top: 1.25rem;
+        left: 1.25rem;
+        background: rgba(20, 20, 31, 0.85);
+        color: #fff;
+        padding: 0.5rem 1.2rem;
+        border-radius: 50rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        backdrop-filter: blur(4px);
+    }
+    .place-header-wrapper {
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eef0f2;
+    }
+    .place-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+        color: #14141F;
+        word-break: break-word;
+    }
+    .place-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+        margin-bottom: 0;
     }
     .info-card {
-        border-radius: 1rem;
+        background: #ffffff;
+        border-radius: 1.25rem;
         border: none;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    .section-heading {
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-top: 0.25rem;
+        margin-bottom: 1.25rem;
+        color: #14141F;
+        display: flex;
+        align-items: center;
     }
     .info-item {
         display: flex;
         align-items: flex-start;
-        gap: 12px;
-        padding: 12px 0;
+        gap: 14px;
+        padding: 14px 0;
         border-bottom: 1px solid #f0f0f0;
     }
-    .info-item:last-child { border-bottom: none; }
+    .info-item:last-child {
+        border-bottom: none;
+    }
     .info-item i {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #eef4ff;
         color: #2563eb;
         flex-shrink: 0;
+        font-size: 1rem;
     }
     .rating-badge {
         display: inline-flex;
         align-items: center;
         background: #fff4d6;
         color: #b45309;
-        padding: 6px 14px;
+        padding: 8px 18px;
         border-radius: 999px;
         font-weight: 700;
+        font-size: 1.1rem;
+    }
+    .map-frame-wrapper {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
+    }
+    .review-item {
+        padding: 1.25rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .review-item:last-child {
+        border-bottom: none;
+    }
+    .comment-form-wrapper {
+        margin-top: 2.5rem;
+        padding-top: 1.75rem;
+        border-top: 2px solid #f1f3f5;
     }
 </style>
 
-<div class="container py-4">
+<div class="container place-detail-container">
 
     <!-- Breadcrumb -->
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb mb-0">
             <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Anasayfa</a></li>
-            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@place.City.Name</a></li>
-            <li class="breadcrumb-item active">@place.Name</li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">@(place.City?.Name ?? "Şehir")</a></li>
+            <li class="breadcrumb-item active" aria-current="page">@place.Name</li>
         </ol>
     </nav>
 
     <!-- Hero Görsel -->
-    <div class="position-relative mb-4">
-        <img src="@place.ImageUrl" alt="@place.Name" class="hero-image shadow-sm" />
-        <span class="badge bg-dark bg-opacity-75 position-absolute top-0 start-0 m-4 px-3 py-2 rounded-pill">
-            <i class="@place.Category.IconCssClass me-1"></i> @place.Category.Name
+    <div class="hero-image-wrapper">
+        <img src="/img/@System.IO.Path.GetFileName(place.ImageUrl)" alt="@place.Name" class="hero-image" onerror="this.src='/img/destination-1.jpg';" />
+        <span class="hero-category-badge">
+            <i class="@(place.Category?.IconCssClass ?? "fa-solid fa-tag") me-2"></i>@(place.Category?.Name ?? "Kategori")
         </span>
     </div>
 
@@ -81,67 +161,177 @@
         <div class="col-lg-8">
 
             <!-- Başlık ve Puan -->
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+            <div class="place-header-wrapper d-flex justify-content-between align-items-start flex-wrap gap-3">
                 <div>
-                    <h1 class="fw-bold mb-1">@place.Name</h1>
-                    <p class="text-muted mb-0">
-                        <i class="fa-solid fa-location-dot me-1"></i> @place.Address
+                    <h1 class="place-title">@place.Name</h1>
+                    <p class="place-subtitle">
+                        <i class="fa-solid fa-location-dot text-primary me-2"></i>@place.Address
                     </p>
                 </div>
                 <div class="rating-badge">
-                    <i class="fa-solid fa-star me-1"></i> @place.Rating
+                    <i class="fa-solid fa-star me-2"></i>@place.Rating
                 </div>
             </div>
 
             <!-- Kısa Açıklama -->
-            <p class="lead text-secondary">@place.ShortDescription</p>
+            <div class="mb-4">
+                <p class="lead text-secondary" style="line-height: 1.8;">@place.ShortDescription</p>
+            </div>
 
             <!-- Tam Açıklama -->
-            <div class="info-card p-4 mb-4">
-                <h5 class="fw-bold mb-3">
+            <div class="info-card">
+                <h5 class="section-heading">
                     <i class="fa-solid fa-circle-info text-primary me-2"></i> Hakkında
                 </h5>
                 <p class="mb-0 text-secondary" style="line-height: 1.8;">@place.FullDescription</p>
             </div>
 
-            <!-- Harita -->
-            <div class="info-card p-4 mb-4">
-                <h5 class="fw-bold mb-3">
-                    <i class="fa-solid fa-map-location-dot text-primary me-2"></i> Konum
+            <!-- Google Maps Harita -->
+            <div class="info-card">
+                <h5 class="section-heading">
+                    <i class="fa-solid fa-map-location-dot text-primary me-2"></i> Konum & Harita
                 </h5>
-                <div id="map"></div>
-                <a href="https://www.google.com/maps/dir/?api=1&destination=@place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),@place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
-                   target="_blank"
-                   class="btn btn-outline-primary mt-3">
-                    <i class="fa-solid fa-diamond-turn-right me-2"></i> Yol Tarifi Al
-                </a>
-            </div>
-
-            <!-- Yorumlar -->
-            <div class="info-card p-4 mb-4">
-                <h5 class="fw-bold mb-3">
-                    <i class="fa-solid fa-comments text-primary me-2"></i> Yorumlar
-                    <span class="badge bg-secondary ms-2">@place.Reviews.Count</span>
-                </h5>
-                @if (place.Reviews.Count == 0)
+                <div class="map-frame-wrapper shadow-sm">
+                    <iframe class="w-100"
+                            style="height: 380px; border: 0;"
+                            src="@mapUrl"
+                            loading="lazy"
+                            allowfullscreen=""
+                            referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                @if (place.Latitude != 0 && place.Longitude != 0)
                 {
-                    <p class="text-muted mb-0">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=@place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),@place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)"
+                       target="_blank"
+                       class="btn btn-outline-primary mt-2">
+                        <i class="fa-solid fa-diamond-turn-right me-2"></i> Google Haritalarda Yol Tarifi Al
+                    </a>
                 }
                 else
                 {
-                    foreach (var review in place.Reviews)
-                    {
-                        <div class="border-bottom py-3">
-                            <strong>@review.Comment</strong>
-                        </div>
-                    }
+                    <a href="https://www.google.com/maps/search/?api=1&query=@System.Net.WebUtility.UrlEncode(mapQuery)"
+                       target="_blank"
+                       class="btn btn-outline-primary mt-2">
+                        <i class="fa-solid fa-diamond-turn-right me-2"></i> Google Haritalarda Gör
+                    </a>
                 }
+            </div>
+
+            <!-- Yorumlar -->
+            <div class="info-card">
+                <h5 class="section-heading justify-content-between">
+                    <span>
+                        <i class="fa-solid fa-comments text-primary me-2"></i> Değerlendirmeler & Yorumlar
+                    </span>
+                    <span class="badge bg-primary rounded-pill fs-6 px-3">@place.Reviews.Count</span>
+                </h5>
+
+                @if (place.Reviews.Count == 0)
+                {
+                    <div class="text-center py-4 text-muted">
+                        <i class="fa-regular fa-comment-dots fs-1 mb-2 d-block"></i>
+                        Henüz yorum yapılmamış. İlk yorumu sen yap!
+                    </div>
+                }
+                else
+                {
+                    <div class="reviews-list">
+                        @foreach (var review in place.Reviews.OrderByDescending(r => r.CreatedAt))
+                        {
+                            <div class="review-item">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="rounded-circle bg-light d-flex align-items-center justify-content-center fw-bold text-primary" style="width: 38px; height: 38px;">
+                                            @(!string.IsNullOrEmpty(review.ReviewerName) ? review.ReviewerName.Substring(0, 1).ToUpper() : "U")
+                                        </div>
+                                        <div>
+                                            <strong class="text-dark d-block">@(string.IsNullOrEmpty(review.ReviewerName) ? "Misafir" : review.ReviewerName)</strong>
+                                            <small class="text-muted">@review.CreatedAt.ToString("dd MMMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))</small>
+                                        </div>
+                                    </div>
+                                    <div class="text-warning small">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            if (i <= review.Rating)
+                                            {
+                                                <i class="fa-solid fa-star"></i>
+                                            }
+                                            else
+                                            {
+                                                <i class="fa-regular fa-star text-muted"></i>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                                <p class="text-secondary mb-0 ms-5" style="line-height: 1.6;">@review.Comment</p>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- Yorum Ekleme Formu -->
+                <div class="comment-form-wrapper">
+                    <h5 class="section-heading">
+                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Bir Yorum Bırakın
+                    </h5>
+                    <form asp-controller="Places" asp-action="AddReview" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="PlaceId" value="@place.Id" />
+                        <div class="row g-3">
+                            @if (User.Identity != null && User.Identity.IsAuthenticated)
+                            {
+                                <!-- Giriş yapmış kullanıcı için isim ve email gizli -->
+                                <input type="hidden" name="ReviewerName" value="@User.Identity.Name" />
+                                <input type="hidden" name="Email" value="@User.Identity.Name" />
+                                
+                                <div class="col-12">
+                                    <div class="alert alert-info py-2 mb-0">
+                                        <i class="fa fa-user-circle me-1"></i> <strong>@User.Identity.Name</strong> olarak yorum yapıyorsunuz.
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Giriş yapmamış kullanıcı için manuel -->
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Adınız Soyadınız <span class="text-danger">*</span></label>
+                                    <input type="text" name="ReviewerName" class="form-control" placeholder="Örn: Ahmet Yılmaz" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">E-posta Adresiniz <span class="text-danger">*</span></label>
+                                    <input type="email" name="Email" class="form-control" placeholder="ornek@email.com" required />
+                                </div>
+                            }
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Puanınız <span class="text-danger">*</span></label>
+                                <select name="Rating" class="form-select" required>
+                                    <option value="5" selected>⭐⭐⭐⭐⭐ (5 / 5 - Mükemmel)</option>
+                                    <option value="4">⭐⭐⭐⭐ (4 / 5 - Çok İyi)</option>
+                                    <option value="3">⭐⭐⭐ (3 / 5 - Ortalama)</option>
+                                    <option value="2">⭐⭐ (2 / 5 - Yetersiz)</option>
+                                    <option value="1">⭐ (1 / 5 - Çok Kötü)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">Yorumunuz <span class="text-danger">*</span></label>
+                                <textarea name="Comment" class="form-control" rows="4" placeholder="Mekan hakkındaki deneyimlerinizi paylaşın..." required></textarea>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
+                                    <i class="fa-solid fa-paper-plane me-2"></i> Yorumu Gönder
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
         <!-- Sağ: Bilgi Kartı -->
         <div class="col-lg-4">
-            <div class="info-card p-4 sticky-top" style="top: 20px;">
+            <div class="info-card sticky-top" style="top: 20px;">
 
                 <!-- Ücret -->
                 <div class="text-center mb-4">
@@ -164,7 +354,7 @@
                     <i class="fa-solid fa-city"></i>
                     <div>
                         <small class="text-muted d-block">Şehir</small>
-                        <strong>@place.City.Name</strong>
+                        <strong>@(place.City?.Name ?? "-")</strong>
                     </div>
                 </div>
 
@@ -172,7 +362,7 @@
                     <i class="fa-solid fa-tag"></i>
                     <div>
                         <small class="text-muted d-block">Kategori</small>
-                        <strong>@place.Category.Name</strong>
+                        <strong>@(place.Category?.Name ?? "-")</strong>
                     </div>
                 </div>
 
@@ -186,10 +376,11 @@
 
                 <!-- Aksiyonlar -->
                 <div class="d-grid gap-2 mt-4">
-                    <button class="btn btn-primary btn-lg">
+                    <!-- FAVORİLERE EKLE BUTONU (AJAX İLE ÇALIŞIR) -->
+                    <button class="btn btn-primary btn-lg rounded-pill" type="button" onclick="toggleFavorite(this, @place.Id)">
                         <i class="fa-regular fa-heart me-2"></i> Favorilere Ekle
                     </button>
-                    <button class="btn btn-outline-secondary">
+                    <button class="btn btn-outline-secondary rounded-pill" type="button">
                         <i class="fa-solid fa-share-nodes me-2"></i> Paylaş
                     </button>
                 </div>
@@ -200,15 +391,17 @@
     <!-- Benzer Yerler -->
     @if (Model.SimilarPlaces.Count > 0)
     {
-        <div class="mt-5">
-            <h3 class="fw-bold mb-4">Bunlar da İlginizi Çekebilir</h3>
+        <div class="mt-5 pt-3">
+            <h3 class="fw-bold mb-4">
+                <i class="fa-solid fa-compass text-primary me-2"></i> Bunlar da İlginizi Çekebilir
+            </h3>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 @foreach (var item in Model.SimilarPlaces)
                 {
                     <div class="col">
                         <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none">
                             <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover">
-                                <img src="@item.ImageUrl" class="card-img-top" style="height: 180px; object-fit: cover;" alt="@item.Name" />
+                                <img src="/img/@System.IO.Path.GetFileName(item.ImageUrl)" class="card-img-top" style="height: 180px; object-fit: cover;" alt="@item.Name" onerror="this.src='/img/destination-1.jpg';" />
                                 <div class="card-body">
                                     <h5 class="card-title fw-bold text-dark mb-2">@item.Name</h5>
                                     <p class="card-text text-muted small">@item.ShortDescription</p>
@@ -223,24 +416,43 @@
 </div>
 
 @section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var lat = @place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            var lng = @place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture);
-            var placeName = "@Html.Raw(place.Name.Replace("\\", "\\\\").Replace("\"", "\\\""))";
+        function toggleFavorite(btnElement, placeId) {
+            @if (User.Identity != null && !User.Identity.IsAuthenticated)
+            {
+                <text>
+                alert('Favorilere eklemek için lütfen giriş yapın.');
+                window.location.href = '/Account/Login';
+                return;
+                </text>
+            }
 
-            var map = L.map('map').setView([lat, lng], 15);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-
-            L.marker([lat, lng])
-                .addTo(map)
-                .bindPopup('<strong>' + placeName + '</strong>')
-                .openPopup();
-        });
+            fetch('/Account/ToggleFavorite', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'placeId=' + placeId
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const icon = btnElement.querySelector('i');
+                    if (data.isFavorite) {
+                        icon.classList.remove('fa-regular');
+                        icon.classList.add('fa-solid');
+                        btnElement.innerHTML = '<i class="fa-solid fa-heart me-2"></i> Favorilerden Çıkar';
+                    } else {
+                        icon.classList.remove('fa-solid');
+                        icon.classList.add('fa-regular');
+                        btnElement.innerHTML = '<i class="fa-regular fa-heart me-2"></i> Favorilere Ekle';
+                    }
+                } else if (data.requireLogin) {
+                    alert(data.message);
+                    window.location.href = '/Account/Login';
+                }
+            })
+            .catch(error => console.error('Hata:', error));
+        }
     </script>
 }

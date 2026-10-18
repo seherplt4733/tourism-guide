@@ -1,0 +1,89 @@
+@model List<TourismGuide.Entity.Place>
+@{
+    ViewData["Title"] = "Mekanlar";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">
+            <i class="fa fa-location-dot text-primary me-2"></i>Mekan Yönetimi
+        </h4>
+        <p class="text-muted small mb-0">Sistemdeki tüm turistik mekanları görüntüleyin ve arayın.</p>
+    </div>
+</div>
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table id="placesTable" class="table table-hover align-middle w-100">
+            <thead class="table-light">
+                <tr>
+                    <th style="min-width: 200px;">Mekan Adı</th>
+                    <th>Şehir</th>
+                    <th>Kategori</th>
+                    <th>Puan</th>
+                    <th>Fiyat</th>
+                    <th class="text-end">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" class="rounded me-3 shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                    <div>
+                                        <strong class="text-dark d-block">@item.Name</strong>
+                                        <small class="text-muted text-truncate d-inline-block" style="max-width: 220px;">@item.ShortDescription</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="fa fa-city text-primary me-1"></i>@(item.City?.Name ?? "-")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border">@(item.Category?.Name ?? "-")</span>
+                            </td>
+                            <td>
+                                <span class="text-warning small"><i class="fa-solid fa-star me-1"></i>@item.Rating</span>
+                            </td>
+                            <td>
+                                @if (item.IsFree)
+                                {
+                                    <span class="badge bg-success">Ücretsiz</span>
+                                }
+                                else
+                                {
+                                    <span class="fw-bold text-dark">₺@item.Price.ToString("0.##")</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-area="" asp-controller="Places" asp-action="Details" asp-route-id="@item.Id" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fa fa-eye me-1"></i> Görüntüle
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#placesTable').DataTable({
+                responsive: true,
+                pageLength: 10
+            });
+        });
+    </script>
+}

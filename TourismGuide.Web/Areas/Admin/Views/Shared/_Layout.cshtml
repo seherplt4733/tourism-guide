@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Tourist Admin</title>
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="~/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables Stylesheet -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
+
+    <style>
+        :root {
+            --sidebar-bg: #14141F;
+            --sidebar-hover: #1e1e30;
+            --sidebar-text: #9a9cab;
+            --sidebar-active-text: #ffffff;
+            --primary-color: #86B817;
+            --body-bg: #f4f6fa;
+        }
+
+        body {
+            font-family: 'Heebo', sans-serif;
+            background-color: var(--body-bg);
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .admin-wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .admin-sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            flex-shrink: 0;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            padding: 24px 20px;
+            font-family: 'Nunito', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            text-decoration: none;
+        }
+
+        .sidebar-brand span {
+            color: var(--primary-color);
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            list-style: none;
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .sidebar-heading {
+            padding: 10px 24px 5px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #555770;
+        }
+
+        .sidebar-item {
+            margin: 4px 14px;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 11px 16px;
+            color: var(--sidebar-text);
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link i {
+            width: 26px;
+            font-size: 1.1rem;
+            margin-right: 12px;
+            color: #6c708a;
+            transition: color 0.2s;
+        }
+
+        .sidebar-link:hover {
+            color: var(--sidebar-active-text);
+            background-color: var(--sidebar-hover);
+        }
+
+        .sidebar-link:hover i {
+            color: var(--primary-color);
+        }
+
+        .sidebar-link.active {
+            color: #fff;
+            background: linear-gradient(135deg, rgba(134, 184, 23, 0.85), var(--primary-color));
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(134, 184, 23, 0.3);
+        }
+
+        .sidebar-link.active i {
+            color: #fff;
+        }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255,255,255,0.07);
+        }
+
+        /* Main Content */
+        .admin-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .admin-header {
+            background: #fff;
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            border-bottom: 1px solid #eef1f6;
+        }
+
+        .admin-content {
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+            border: 1px solid #edf0f5;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        /* DataTables Custom Styling */
+        table.dataTable {
+            border-collapse: collapse !important;
+        }
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current, 
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+            background: var(--primary-color) !important;
+            color: #fff !important;
+            border-color: var(--primary-color) !important;
+            border-radius: 6px;
+        }
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 6px 12px;
+        }
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            padding: 6px 12px;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="admin-wrapper">
+        <!-- Dark Sidebar -->
+        <aside class="admin-sidebar">
+            <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="sidebar-brand">
+                <i class="fa fa-map-marker-alt text-primary me-2"></i>
+                <span>Tourist</span>&nbsp;Admin
+            </a>
+
+            <ul class="sidebar-menu">
+                <li class="sidebar-heading">Ana Menü</li>
+                <li class="sidebar-item">
+                    <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                        <i class="fa fa-gauge-high"></i> Dashboard
+                    </a>
+                </li>
+
+                <li class="sidebar-heading">İçerik Yönetimi</li>
+                <li class="sidebar-item">
+                    <a asp-area="Admin" asp-controller="Places" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Places" ? "active" : "")">
+                        <i class="fa fa-location-dot"></i> Mekanlar
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a asp-area="Admin" asp-controller="Cities" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Cities" ? "active" : "")">
+                        <i class="fa fa-city"></i> Şehirler
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a asp-area="Admin" asp-controller="Events" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Events" ? "active" : "")">
+                        <i class="fa fa-calendar-alt"></i> Etkinlikler
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a asp-area="Admin" asp-controller="Reviews" asp-action="Index" class="sidebar-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Reviews" ? "active" : "")">
+                        <i class="fa fa-comments"></i> Yorumlar
+                    </a>
+                </li>
+
+                <li class="sidebar-heading">Sistem</li>
+                <li class="sidebar-item">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="sidebar-link" target="_blank">
+                        <i class="fa fa-arrow-up-right-from-square"></i> Siteyi Görüntüle
+                    </a>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-3" style="width: 38px; height: 38px; font-weight: 700;">
+                        A
+                    </div>
+                    <div>
+                        <div class="text-white small fw-bold">Yönetici</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">admin@tourist.com</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="admin-main">
+            <!-- Header -->
+            <header class="admin-header">
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">@ViewData["Title"]</h5>
+                    <small class="text-muted">Tourist Yönetim Paneli</small>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                        <i class="fa fa-globe me-1"></i> Siteye Dön
+                    </a>
+                </div>
+            </header>
+
+            <!-- Page Body -->
+            <main class="admin-content">
+                @RenderBody()
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white py-3 border-top mt-auto px-4">
+                <div class="d-flex justify-content-between align-items-center small text-muted">
+                    <div>&copy; @DateTime.Now.Year Tourist Yönetim Paneli. Tüm hakları saklıdır.</div>
+                    <div>Versiyon 1.0</div>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+
+    <script>
+        // DataTables Türkçe Dil Desteği
+        $.extend(true, $.fn.dataTable.defaults, {
+            language: {
+                "emptyTable": "Tabloda herhangi bir veri mevcut değil",
+                "info": "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+                "infoEmpty": "Kayıt yok",
+                "infoFiltered": "(_MAX_ kayıt içerisinden bulunan)",
+                "lengthMenu": "Sayfada _MENU_ kayıt göster",
+                "loadingRecords": "Yükleniyor...",
+                "processing": "İşleniyor...",
+                "search": "Ara:",
+                "zeroRecords": "Eşleşen kayıt bulunamadı",
+                "paginate": {
+                    "first": "İlk",
+                    "last": "Son",
+                    "next": "Sonraki",
+                    "previous": "Önceki"
+                }
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

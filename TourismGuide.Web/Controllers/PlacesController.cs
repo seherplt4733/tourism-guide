@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TourismGuide.DataAccess;
-using TourismGuide.Web.Models;
+using TourismGuide.Entity;
+using TourismGuide.Web.Models; // ViewModel'ini kullanabilmek için gerekli
 
 namespace TourismGuide.Web.Controllers
 {
@@ -15,7 +16,6 @@ namespace TourismGuide.Web.Controllers
         }
 
         // URL: /places/details/1
-        // veya Razor'da: asp-controller="Places" asp-action="Details" asp-route-id="1"
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0)
@@ -23,6 +23,7 @@ namespace TourismGuide.Web.Controllers
                 return BadRequest("Geçersiz mekan Id.");
             }
 
+            // 1. Ana mekanı veritabanından çek (Yorumlar, Şehir ve Kategori dahil)
             var place = await _context.Places
                 .Include(p => p.City)
                 .Include(p => p.Category)
@@ -34,6 +35,7 @@ namespace TourismGuide.Web.Controllers
                 return NotFound($"Mekan bulunamadı: {id}");
             }
 
+            // 2. Benzer mekanları bul (Aynı şehir ve aynı kategorideki diğer mekanlar)
             var similar = await _context.Places
                 .Include(p => p.City)
                 .Include(p => p.Category)
@@ -43,6 +45,7 @@ namespace TourismGuide.Web.Controllers
                 .Take(3)
                 .ToListAsync();
 
+            // 3. ViewModel'i doldur
             var vm = new PlaceDetailsViewModel
             {
                 Place = place,
@@ -51,5 +54,25 @@ namespace TourismGuide.Web.Controllers
 
             return View(vm);
         }
+        // POST: /Places/AddReview
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddReview(Review newReview)
+        {
+            ModelState.Remove("Place");
+            if (!ModelState.IsValid)
+            {
+        // Form geçersizse detay sayfasını yeniden yükle
+        return await Details(newReview.PlaceId);
+    }
+
+    newReview.CreatedAt = DateTime.Now;
+    
+    _context.Reviews.Add(newReview);
+    await _context.SaveChangesAsync();
+
+    // Yorum yapılan mekanın detay sayfasına geri dön
+    return RedirectToAction(nameof(Details), new { id = newReview.PlaceId });
+}
     }
 }
