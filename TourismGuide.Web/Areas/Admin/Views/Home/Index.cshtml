@@ -85,6 +85,41 @@
     </div>
 </div>
 
+<!-- Charts Section -->
+<div class="row g-4 mb-4">
+    <!-- Kart 1: Şehirlere Göre Mekan Dağılımı (Doughnut Chart) -->
+    <div class="col-lg-6">
+        <div class="admin-card h-100 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-chart-pie text-primary me-2"></i>Şehirlere Göre Mekan Dağılımı
+                </h5>
+                <span class="badge bg-light text-primary border">Oransal Dağılım</span>
+            </div>
+            <p class="text-muted small mb-3">Sistemde kayıtlı mekanların şehirlere göre oransal yoğunluğu.</p>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="cityPlacesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kart 2: Şehirlere Göre Yorum Yoğunluğu (Bar Chart) -->
+    <div class="col-lg-6">
+        <div class="admin-card h-100 p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-chart-column text-primary me-2"></i>Şehirlere Göre Yorum Yoğunluğu
+                </h5>
+                <span class="badge bg-light text-success border">Popüler Şehirler</span>
+            </div>
+            <p class="text-muted small mb-3">En çok kullanıcı değerlendirmesi alan ilk şehirlerin yorum dağılımı.</p>
+            <div style="position: relative; height: 280px; width: 100%;">
+                <canvas id="cityReviewsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Main Row -->
 <div class="row g-4">
     <!-- Son Mekanlar -->
@@ -113,14 +148,29 @@
                         <tbody>
                             @foreach (var place in recentPlaces)
                             {
+                                var imgSrc = string.IsNullOrEmpty(place.ImageUrl) 
+                                    ? "/img/destination-1.jpg" 
+                                    : (place.ImageUrl.StartsWith("http") || place.ImageUrl.StartsWith("/") 
+                                        ? place.ImageUrl 
+                                        : "/img/" + System.IO.Path.GetFileName(place.ImageUrl));
+
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            @if (!string.IsNullOrEmpty(place.ImageUrl))
-                                            {
-                                                <img src="@place.ImageUrl" alt="@place.Name" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;" />
-                                            }
-                                            <span class="fw-bold text-dark">@place.Name</span>
+                                            <img src="@imgSrc" 
+                                                 alt="@place.Name" 
+                                                 class="rounded me-2 shadow-sm" 
+                                                 style="width: 40px; height: 40px; min-width: 40px; object-fit: cover;" 
+                                                 onerror="this.onerror=null; this.src='/img/destination-1.jpg';" />
+                                            <div>
+                                                <span class="fw-bold text-dark d-block">@place.Name</span>
+                                                @if (place.IsFeatured)
+                                                {
+                                                    <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">
+                                                        <i class="fa fa-star me-1"></i>Öne Çıkan
+                                                    </span>
+                                                }
+                                            </div>
                                         </div>
                                     </td>
                                     <td>
@@ -202,3 +252,118 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const cityPlacesLabels = @Html.Raw(ViewBag.CityPlaceLabelsJson ?? "[]");
+            const cityPlacesCounts = @Html.Raw(ViewBag.CityPlaceCountsJson ?? "[]");
+
+            const cityReviewsLabels = @Html.Raw(ViewBag.CityReviewLabelsJson ?? "[]");
+            const cityReviewsCounts = @Html.Raw(ViewBag.CityReviewCountsJson ?? "[]");
+
+            // 1. Doughnut Chart: Şehirlere Göre Mekan Dağılımı
+            const ctxPlaces = document.getElementById('cityPlacesChart')?.getContext('2d');
+            if (ctxPlaces) {
+                new Chart(ctxPlaces, {
+                    type: 'doughnut',
+                    data: {
+                        labels: cityPlacesLabels,
+                        datasets: [{
+                            data: cityPlacesCounts,
+                            backgroundColor: [
+                                '#7bb017',
+                                '#28a745',
+                                '#a0d468',
+                                '#48cfad',
+                                '#34495e',
+                                '#f97316',
+                                '#3b82f6'
+                            ],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                            hoverOffset: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 14,
+                                    padding: 12,
+                                    font: { size: 12, family: "'Segoe UI', sans-serif" }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return ' ' + context.label + ': ' + context.parsed + ' mekan';
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '65%'
+                    }
+                });
+            }
+
+            // 2. Bar Chart: Şehirlere Göre Yorum Yoğunluğu
+            const ctxReviews = document.getElementById('cityReviewsChart')?.getContext('2d');
+            if (ctxReviews) {
+                new Chart(ctxReviews, {
+                    type: 'bar',
+                    data: {
+                        labels: cityReviewsLabels,
+                        datasets: [{
+                            label: 'Yorum Sayısı',
+                            data: cityReviewsCounts,
+                            backgroundColor: 'rgba(123, 176, 23, 0.85)',
+                            borderColor: '#7bb017',
+                            borderWidth: 1.5,
+                            borderRadius: 6,
+                            hoverBackgroundColor: '#7bb017'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return ' ' + context.parsed.y + ' değerlendirme';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    precision: 0,
+                                    stepSize: 1
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}

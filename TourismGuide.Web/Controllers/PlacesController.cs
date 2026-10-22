@@ -15,7 +15,12 @@ namespace TourismGuide.Web.Controllers
             _context = context;
         }
 
-        // URL: /places/details/1
+        // URL: /mekan-detay/1, /mekan/1, /Places/Details/1, /Place/Detail/1
+        [HttpGet]
+        [Route("mekan-detay/{id}")]
+        [Route("mekan/{id}")]
+        [Route("Places/Details/{id}")]
+        [Route("Place/Detail/{id}")]
         public async Task<IActionResult> Details(int id)
         {
             if (id <= 0)
@@ -56,23 +61,50 @@ namespace TourismGuide.Web.Controllers
         }
         // POST: /Places/AddReview
         [HttpPost]
+        [Route("Places/AddReview")]
+        [Route("Place/AddReview")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddReview(Review newReview)
+        public async Task<IActionResult> AddReview(Review newReview, IFormFile? reviewImage)
         {
             ModelState.Remove("Place");
             if (!ModelState.IsValid)
             {
-        // Form geçersizse detay sayfasını yeniden yükle
-        return await Details(newReview.PlaceId);
-    }
+                // Form geçersizse detay sayfasını yeniden yükle
+                return await Details(newReview.PlaceId);
+            }
 
-    newReview.CreatedAt = DateTime.Now;
-    
-    _context.Reviews.Add(newReview);
-    await _context.SaveChangesAsync();
+            if (reviewImage != null && reviewImage.Length > 0)
+            {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                var extension = Path.GetExtension(reviewImage.FileName).ToLowerInvariant();
+                if (allowedExtensions.Contains(extension))
+                {
+                    var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "reviews");
+                    if (!Directory.Exists(uploadsFolder))
+                    {
+                        Directory.CreateDirectory(uploadsFolder);
+                    }
 
-    // Yorum yapılan mekanın detay sayfasına geri dön
-    return RedirectToAction(nameof(Details), new { id = newReview.PlaceId });
-}
+                    var uniqueFileName = $"{Guid.NewGuid()}{extension}";
+                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await reviewImage.CopyToAsync(stream);
+                    }
+
+                    newReview.ReviewImageUrl = $"/uploads/reviews/{uniqueFileName}";
+                }
+            }
+
+            newReview.CreatedAt = DateTime.Now;
+            newReview.IsApproved = false;
+            
+            _context.Reviews.Add(newReview);
+            await _context.SaveChangesAsync();
+
+            // Yorum yapılan mekanın detay sayfasına geri dön
+            return RedirectToAction(nameof(Details), new { id = newReview.PlaceId });
+        }
     }
 }

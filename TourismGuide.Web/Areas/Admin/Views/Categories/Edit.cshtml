@@ -1,0 +1,106 @@
+@model TourismGuide.Entity.Category
+@{
+    ViewData["Title"] = "Kategoriyi Düzenle";
+    var iconClass = !string.IsNullOrWhiteSpace(Model.IconCssClass) ? Model.IconCssClass : "fa-tag";
+    if (!iconClass.StartsWith("fa")) iconClass = "fa " + iconClass;
+    if (!iconClass.Contains(" ")) iconClass = "fa " + iconClass;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="fa fa-pen-to-square text-primary me-2"></i>Kategoriyi Düzenle
+                </h2>
+                <p class="text-muted mb-0">"@Model.Name" kategorisine ait bilgileri güncelleyin.</p>
+            </div>
+            <a href="/yonetim/kategoriler" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa fa-arrow-left me-1"></i> Listeye Dön
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <form action="/yonetim/kategoriler/duzenle/@Model.Id" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Name" class="form-label fw-bold">Kategori Adı <span class="text-danger">*</span></label>
+                        <input asp-for="Name" class="form-control" placeholder="Örn: Tarihi Mekanlar" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-9">
+                        <label asp-for="IconCssClass" class="form-label fw-bold">İkon Sınıfı (FontAwesome)</label>
+                        <input asp-for="IconCssClass" id="iconInput" class="form-control" placeholder="Örn: fa-landmark, fa-tree, fa-monument, fa-utensils" />
+                        <span asp-validation-for="IconCssClass" class="text-danger small"></span>
+                        
+                        <!-- Hızlı Seçim Butonları -->
+                        <div class="mt-2">
+                            <small class="text-muted d-block mb-1">Hızlı İkon Seçimi:</small>
+                            <div class="d-flex flex-wrap gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-landmark"><i class="fa fa-landmark me-1"></i>fa-landmark</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-tree"><i class="fa fa-tree me-1"></i>fa-tree</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-monument"><i class="fa fa-monument me-1"></i>fa-monument</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-utensils"><i class="fa fa-utensils me-1"></i>fa-utensils</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-camera"><i class="fa fa-camera me-1"></i>fa-camera</button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2 select-icon-btn" data-icon="fa-compass"><i class="fa fa-compass me-1"></i>fa-compass</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">İkon Önizleme</label>
+                        <div class="d-flex align-items-center justify-content-center border rounded-3 p-3 bg-light" style="height: 58px;">
+                            <i id="iconPreview" class="@iconClass fs-3 text-primary"></i>
+                        </div>
+                    </div>
+
+                    <div class="col-12 text-end pt-3 border-top">
+                        <a href="/yonetim/kategoriler" class="btn btn-light rounded-pill px-4 me-2">İptal</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fa fa-save me-1"></i> Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var iconInput = document.getElementById('iconInput');
+        var iconPreview = document.getElementById('iconPreview');
+
+        function updateIcon() {
+            var val = (iconInput.value || '').trim();
+            if (!val) {
+                iconPreview.className = 'fa fa-tag fs-3 text-primary';
+                return;
+            }
+            if (!val.startsWith('fa')) {
+                val = 'fa ' + val;
+            }
+            if (!val.includes(' ')) {
+                val = 'fa ' + val;
+            }
+            iconPreview.className = val + ' fs-3 text-primary';
+        }
+
+        iconInput?.addEventListener('input', updateIcon);
+
+        document.querySelectorAll('.select-icon-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var icon = this.getAttribute('data-icon');
+                if (iconInput) {
+                    iconInput.value = icon;
+                    updateIcon();
+                }
+            });
+        });
+    </script>
+}

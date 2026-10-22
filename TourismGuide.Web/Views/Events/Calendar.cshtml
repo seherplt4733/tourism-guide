@@ -1,0 +1,120 @@
+@{
+    ViewData["Title"] = "Etkinlik Takvimi";
+}
+
+<!-- FullCalendar CDN -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@fullcalendar/core@6.1.10/locales/tr.global.min.js"></script>
+
+<style>
+    .calendar-container {
+        background: #ffffff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+        border: 1px solid #edf0f5;
+        padding: 2rem;
+    }
+    .fc-header-toolbar {
+        margin-bottom: 1.5rem !important;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+    .fc .fc-toolbar-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #14141F;
+    }
+    .fc .fc-button-primary {
+        background-color: #86B817 !important;
+        border-color: #86B817 !important;
+        font-weight: 600;
+        border-radius: 0.5rem !important;
+        padding: 0.45rem 1rem !important;
+        text-transform: capitalize;
+    }
+    .fc .fc-button-primary:hover {
+        background-color: #729d13 !important;
+        border-color: #729d13 !important;
+    }
+    .fc .fc-button-primary:disabled {
+        background-color: #a3c950 !important;
+        border-color: #a3c950 !important;
+    }
+    .fc-theme-standard th {
+        background-color: #f8fafc;
+        padding: 0.75rem 0;
+        font-weight: 600;
+        color: #475569;
+    }
+    .fc-event {
+        cursor: pointer;
+        border-radius: 6px;
+        padding: 3px 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        background-color: #86B817 !important;
+        border-color: #729d13 !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .fc-event:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(134, 184, 23, 0.35);
+    }
+    .fc-day-today {
+        background-color: rgba(134, 184, 23, 0.08) !important;
+    }
+</style>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <!-- Başlık -->
+        <div class="text-center wow fadeInUp mb-5" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Takvim</h6>
+            <h1 class="mb-2">Etkinlik Takvimi</h1>
+            <p class="text-muted">Şehirdeki tüm yaklaşan ve planlanan etkinlikleri takvim üzerinden keşfedin.</p>
+        </div>
+
+        <!-- Takvim Kartı -->
+        <div class="calendar-container">
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'tr',
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listMonth'
+                },
+                buttonText: {
+                    today: 'Bugün',
+                    month: 'Ay',
+                    week: 'Hafta',
+                    list: 'Liste'
+                },
+                events: '/Events/GetEvents',
+                eventTimeFormat: {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    meridiem: false,
+                    hour12: false
+                },
+                eventClick: function (info) {
+                    if (info.event.url) {
+                        info.jsEvent.preventDefault();
+                        window.location.href = info.event.url;
+                    }
+                }
+            });
+            calendar.render();
+        });
+    </script>
+}

@@ -1,0 +1,109 @@
+@model List<TourismGuide.Entity.RoutePlan>
+@{
+    ViewData["Title"] = "Adım Adım Gezi Rotaları";
+    var cities = ViewBag.Cities as List<TourismGuide.Entity.City>;
+    var currentCityId = ViewBag.CurrentCityId as int?;
+}
+
+<div class="container-fluid bg-light py-5 mb-5">
+    <div class="container py-4">
+        <!-- Başlık ve Tanıtım -->
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title bg-white text-center text-primary px-3">Güzergahlar & Rotalar</h6>
+            <h1 class="mb-3">Adım Adım Gezi Planları</h1>
+            <p class="text-muted mx-auto" style="max-width: 650px;">
+                Şehirleri uzman rehberlerin hazırladığı durak durak rotalarla keşfedin. Zamanınızı en verimli şekilde değerlendirin.
+            </p>
+        </div>
+
+        <!-- Şehir Filtreleri -->
+        <div class="d-flex justify-content-center flex-wrap gap-2 py-3 mb-4 wow fadeInUp" data-wow-delay="0.2s">
+            <a href="/rotalar" class="btn rounded-pill px-4 py-2 fw-semibold @(currentCityId == null ? "btn-primary text-white" : "btn-white bg-white text-dark border")">
+                <i class="fa fa-map me-1"></i> Tüm Şehirler
+            </a>
+            @if (cities != null)
+            {
+                foreach (var city in cities)
+                {
+                    <a href="/rotalar?cityId=@city.Id" class="btn rounded-pill px-4 py-2 fw-semibold @(currentCityId == city.Id ? "btn-primary text-white" : "btn-white bg-white text-dark border")">
+                        <i class="fa fa-city me-1"></i> @city.Name
+                    </a>
+                }
+            }
+        </div>
+
+        <!-- Rota Kartları Grid -->
+        <div class="row g-4">
+            @if (Model != null && Model.Count > 0)
+            {
+                foreach (var item in Model)
+                {
+                    var imgSrc = string.IsNullOrEmpty(item.CoverImageUrl) 
+                        ? "/img/destination-1.jpg" 
+                        : (item.CoverImageUrl.StartsWith("http") || item.CoverImageUrl.StartsWith("/") 
+                            ? item.CoverImageUrl 
+                            : (item.CoverImageUrl.StartsWith("uploads/") ? "/" + item.CoverImageUrl : "/img/" + System.IO.Path.GetFileName(item.CoverImageUrl)));
+
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="package-item bg-white rounded shadow-sm overflow-hidden h-100 d-flex flex-column border">
+                            <div class="position-relative overflow-hidden" style="height: 230px;">
+                                <img class="img-fluid w-100 h-100" 
+                                     src="@imgSrc" 
+                                     alt="@item.Title" 
+                                     style="object-fit: cover;" 
+                                     onerror="this.onerror=null; this.src='/img/destination-1.jpg';">
+                                
+                                @if (item.City != null)
+                                {
+                                    <span class="bg-primary text-white position-absolute top-0 start-0 m-3 py-1 px-3 rounded-pill small fw-bold shadow-sm">
+                                        <i class="fa fa-city me-1"></i>@item.City.Name
+                                    </span>
+                                }
+                                
+                                <span class="bg-dark text-white position-absolute bottom-0 end-0 m-3 py-1 px-3 rounded-pill small fw-bold shadow-sm">
+                                    <i class="fa fa-clock text-primary me-1"></i>@item.EstimatedDuration
+                                </span>
+                            </div>
+
+                            <div class="p-4 d-flex flex-column flex-grow-1">
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge bg-light text-primary border">
+                                        <i class="fa fa-map-pin me-1"></i>@(item.Stops?.Count ?? 0) Durak
+                                    </span>
+                                    @if (!string.IsNullOrEmpty(item.TotalDistance))
+                                    {
+                                        <span class="badge bg-light text-secondary border">
+                                            <i class="fa fa-person-walking me-1"></i>@item.TotalDistance
+                                        </span>
+                                    }
+                                </div>
+
+                                <h5 class="fw-bold text-dark mb-2">@item.Title</h5>
+                                <p class="text-muted small mb-4 flex-grow-1" style="line-height: 1.6;">
+                                    @item.Summary
+                                </p>
+
+                                <div class="pt-3 border-top mt-auto">
+                                    <a href="/rota-detay/@item.Id" class="btn btn-outline-primary rounded-pill w-100 fw-bold py-2">
+                                        Rotayı İncele <i class="fa fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center text-muted mb-3" style="width: 80px; height: 80px;">
+                        <i class="fa fa-route fs-1 text-primary"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Bu Şehre Ait Rota Bulunamadı</h5>
+                    <p class="text-muted">Farklı bir şehir seçerek diğer gezi güzergahlarını inceleyebilirsiniz.</p>
+                    <a href="/rotalar" class="btn btn-primary rounded-pill px-4 mt-2">Tüm Rotaları Gör</a>
+                </div>
+            }
+        </div>
+    </div>
+</div>

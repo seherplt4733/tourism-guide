@@ -1,0 +1,168 @@
+@model TourismGuide.Entity.Place
+@{
+    ViewData["Title"] = "Mekanı Düzenle";
+    var cities = ViewBag.Cities as List<TourismGuide.Entity.City>;
+    var categories = ViewBag.Categories as List<TourismGuide.Entity.Category>;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="fa fa-pen-to-square text-primary me-2"></i>Mekanı Düzenle
+                </h2>
+                <p class="text-muted mb-0">"@Model.Name" mekanına ait bilgileri güncelleyin.</p>
+            </div>
+            <a asp-area="Admin" asp-controller="Places" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa fa-arrow-left me-1"></i> Listeye Dön
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <form asp-area="Admin" asp-controller="Places" asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="ImageUrl" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Title" class="form-label fw-bold">Mekan Adı</label>
+                        <input asp-for="Title" class="form-control" placeholder="Örn: Galata Kulesi" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="CityId" class="form-label fw-bold">Şehir</label>
+                        <select asp-for="CityId" class="form-select" required>
+                            <option value="">Şehir Seçiniz...</option>
+                            @if (cities != null)
+                            {
+                                foreach (var city in cities)
+                                {
+                                    <option value="@city.Id" selected="@(city.Id == Model.CityId ? "selected" : null)">@city.Name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CityId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="CategoryId" class="form-label fw-bold">Kategori</label>
+                        <select asp-for="CategoryId" class="form-select" required>
+                            <option value="">Kategori Seçiniz...</option>
+                            @if (categories != null)
+                            {
+                                foreach (var cat in categories)
+                                {
+                                    <option value="@cat.Id" selected="@(cat.Id == Model.CategoryId ? "selected" : null)">@cat.Name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Price" class="form-label fw-bold">Giriş Ücreti (₺)</label>
+                        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" />
+                        <span asp-validation-for="Price" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Rating" class="form-label fw-bold">Puan</label>
+                        <input asp-for="Rating" type="number" step="0.1" min="0" max="5" class="form-control" />
+                        <span asp-validation-for="Rating" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Mevcut Görsel</label>
+                        <div class="d-flex align-items-center p-2 border rounded-3 bg-light">
+                            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+                            {
+                                var imgSrc = (Model.ImageUrl.StartsWith("http") || Model.ImageUrl.StartsWith("/")) 
+                                    ? Model.ImageUrl 
+                                    : (Model.ImageUrl.StartsWith("uploads/") ? "/" + Model.ImageUrl : "/img/" + System.IO.Path.GetFileName(Model.ImageUrl));
+
+                                <img src="@imgSrc" 
+                                     alt="@Model.Name" 
+                                     class="rounded border shadow-sm me-3" 
+                                     style="width: 64px; height: 64px; min-width: 64px; object-fit: cover; background: #fff;" 
+                                     onerror="this.onerror=null; this.src='/img/destination-1.jpg';" />
+                                <div class="overflow-hidden">
+                                    <span class="d-block fw-bold text-dark text-truncate" title="@Model.ImageUrl" style="max-width: 260px;">
+                                        @System.IO.Path.GetFileName(Model.ImageUrl)
+                                    </span>
+                                    <small class="text-success fw-semibold"><i class="fa fa-check-circle me-1"></i>Kayıtlı Mekan Fotoğrafı</small>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="rounded border shadow-sm me-3 d-flex align-items-center justify-content-center bg-white" style="width: 64px; height: 64px; min-width: 64px;">
+                                    <i class="fa fa-image text-muted fs-3"></i>
+                                </div>
+                                <div>
+                                    <span class="d-block fw-bold text-secondary">Görsel Yüklenmedi</span>
+                                    <small class="text-muted">Aşağıdan yeni görsel seçebilirsiniz</small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Yeni Görsel Yükle (Opsiyonel)</label>
+                        <input type="file" name="ImageFile" id="imageFileInput" class="form-control" accept="image/*" />
+                        <small class="text-muted">Yeni bir fotoğraf seçmezseniz mevcut görsel korunur.</small>
+                        <div id="imagePreviewContainer" class="mt-2 d-none">
+                            <small class="text-success d-block fw-bold mb-1"><i class="fa fa-eye me-1"></i>Yeni Seçilen Görsel:</small>
+                            <img id="imagePreview" src="#" alt="Yeni Önizleme" class="rounded border shadow-sm" style="max-height: 100px; object-fit: cover;" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Address" class="form-label fw-bold">Adres</label>
+                        <input asp-for="Address" class="form-control" />
+                        <span asp-validation-for="Address" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="ShortDescription" class="form-label fw-bold">Kısa Açıklama</label>
+                        <input asp-for="ShortDescription" class="form-control" />
+                        <span asp-validation-for="ShortDescription" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="FullDescription" class="form-label fw-bold">Detaylı Açıklama</label>
+                        <textarea asp-for="FullDescription" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="FullDescription" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 text-end pt-3 border-top">
+                        <a asp-area="Admin" asp-controller="Places" asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">İptal</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fa fa-save me-1"></i> Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('imageFileInput')?.addEventListener('change', function (e) {
+        var file = e.target.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                var preview = document.getElementById('imagePreview');
+                var container = document.getElementById('imagePreviewContainer');
+                if (preview && container) {
+                    preview.src = event.target.result;
+                    container.classList.remove('d-none');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

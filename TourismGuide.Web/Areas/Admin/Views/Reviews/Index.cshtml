@@ -1,28 +1,42 @@
 @model List<TourismGuide.Entity.Review>
 @{
-    ViewData["Title"] = "Yorumlar";
+    ViewData["Title"] = "Yorum Yönetimi";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold text-dark mb-1">
-            <i class="fa fa-comments text-primary me-2"></i>Kullanıcı Yorumları
+            <i class="fa fa-comments text-primary me-2"></i>Yorum Yönetimi
         </h4>
-        <p class="text-muted small mb-0">Mekanlara yapılan tüm yorum ve değerlendirmeleri görüntüleyin.</p>
+        <p class="text-muted small mb-0">Mekanlara yapılan tüm yorum ve değerlendirmeleri yönetin ve onaylayın.</p>
+    </div>
+    <div>
+        <span class="badge bg-light text-danger border fs-6 px-3 py-2 shadow-sm">
+            <i class="fa fa-clock me-1"></i><span id="pendingReviewsCountHeader">@(Model?.Count(r => !r.IsApproved) ?? 0)</span> Onay Bekleyen
+        </span>
     </div>
 </div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
 
 <div class="admin-card">
     <div class="table-responsive">
         <table id="reviewsTable" class="table table-hover align-middle w-100">
             <thead class="table-light">
                 <tr>
-                    <th>Yorum Yapan</th>
-                    <th>E-posta</th>
+                    <th>Kullanıcı</th>
                     <th>Mekan</th>
                     <th>Puan</th>
                     <th>Yorum</th>
+                    <th>Durum</th>
                     <th>Tarih</th>
+                    <th class="text-end">İşlemler</th>
                 </tr>
             </thead>
             <tbody>
@@ -33,9 +47,10 @@
                         <tr>
                             <td>
                                 <strong class="text-dark">@(string.IsNullOrEmpty(review.ReviewerName) ? "Misafir" : review.ReviewerName)</strong>
-                            </td>
-                            <td>
-                                <small class="text-muted">@(string.IsNullOrEmpty(review.Email) ? "-" : review.Email)</small>
+                                @if (!string.IsNullOrEmpty(review.Email) && review.Email != review.ReviewerName)
+                                {
+                                    <br /><small class="text-muted">@review.Email</small>
+                                }
                             </td>
                             <td>
                                 <span class="badge bg-light text-dark border">
@@ -58,10 +73,51 @@
                                 </span>
                             </td>
                             <td>
-                                <small class="text-secondary text-truncate d-inline-block" style="max-width: 300px;">@review.Comment</small>
+                                <small class="text-secondary text-truncate d-inline-block" style="max-width: 250px;" title="@review.Comment">@review.Comment</small>
+                                @if (!string.IsNullOrEmpty(review.ReviewImageUrl))
+                                {
+                                    <br />
+                                    <a href="@review.ReviewImageUrl" target="_blank" class="badge bg-light text-primary border text-decoration-none mt-1">
+                                        <i class="fa fa-image me-1"></i>Fotoğrafı Gör
+                                    </a>
+                                }
+                            </td>
+                            <td id="status-cell-@review.Id">
+                                @if (review.IsApproved)
+                                {
+                                    <span class="badge bg-success" id="status-badge-@review.Id">
+                                        <i class="fa fa-check-circle me-1"></i>Onaylı
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark" id="status-badge-@review.Id">
+                                        <i class="fa fa-clock me-1"></i>Askıda / Gizli
+                                    </span>
+                                }
                             </td>
                             <td>
                                 <small class="text-muted">@review.CreatedAt.ToString("dd.MM.yyyy HH:mm")</small>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1" id="action-cell-@review.Id">
+                                    @if (review.IsApproved)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2" onclick="toggleReviewStatus(@review.Id, this)" title="Askıya Al / Gizle">
+                                            <i class="fa fa-eye-slash me-1"></i>Askıya Al
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2" onclick="approveReview(@review.Id, this)" title="Onayla / Yayına Al">
+                                            <i class="fa fa-check me-1"></i>Onayla
+                                        </button>
+                                    }
+
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="confirmDeleteReview(@review.Id)" title="Sil">
+                                        <i class="fa fa-trash me-1"></i>Sil
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -70,6 +126,12 @@
         </table>
     </div>
 </div>
+
+<!-- Silme Formu -->
+<form id="deleteReviewForm" asp-area="Admin" asp-controller="Reviews" asp-action="Delete" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="id" id="deleteReviewId" value="" />
+</form>
 
 @section Scripts {
     <script>
@@ -80,5 +142,145 @@
                 pageLength: 10
             });
         });
+
+        function approveReview(id, btn) {
+            var $btn = $(btn);
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>');
+
+            $.ajax({
+                url: '/Admin/Reviews/ApproveAjax/' + id,
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').first().val()
+                },
+                success: function (res) {
+                    if (res.success) {
+                        // Rozeti anında yeşil 'Onaylı'ya çevir
+                        $('#status-badge-' + id)
+                            .removeClass('bg-warning text-dark')
+                            .addClass('bg-success')
+                            .html('<i class="fa fa-check-circle me-1"></i>Onaylı');
+
+                        // İşlem butonunu Askıya Al'a çevir
+                        $('#action-cell-' + id).html(`
+                            <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2" onclick="toggleReviewStatus(${id}, this)" title="Askıya Al / Gizle">
+                                <i class="fa fa-eye-slash me-1"></i>Askıya Al
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="confirmDeleteReview(${id})" title="Sil">
+                                <i class="fa fa-trash me-1"></i>Sil
+                            </button>
+                        `);
+
+                        // Bekleyen sayılarını güncelle
+                        $('#pendingReviewsCountHeader').text(res.pendingCount);
+                        $('.pending-reviews-count').text(res.pendingCount + ' Bekleyen');
+
+                        // Şık toast bildirim
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: 'Yorum onaylandı ve yayına alındı.',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        Swal.fire('Hata', res.message || 'Onaylama başarısız oldu.', 'error');
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                },
+                error: function () {
+                    Swal.fire('Hata', 'Sunucu ile iletişim kurulamadı.', 'error');
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+
+        function toggleReviewStatus(id, btn) {
+            var $btn = $(btn);
+            var originalHtml = $btn.html();
+            $btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin me-1"></i>');
+
+            $.ajax({
+                url: '/Admin/Reviews/ToggleStatusAjax/' + id,
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').first().val()
+                },
+                success: function (res) {
+                    if (res.success) {
+                        if (res.isApproved) {
+                            $('#status-badge-' + id)
+                                .removeClass('bg-warning text-dark')
+                                .addClass('bg-success')
+                                .html('<i class="fa fa-check-circle me-1"></i>Onaylı');
+
+                            $('#action-cell-' + id).html(`
+                                <button type="button" class="btn btn-sm btn-outline-warning rounded-pill px-2" onclick="toggleReviewStatus(${id}, this)" title="Askıya Al / Gizle">
+                                <i class="fa fa-eye-slash me-1"></i>Askıya Al
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="confirmDeleteReview(${id})" title="Sil">
+                                    <i class="fa fa-trash me-1"></i>Sil
+                                </button>
+                            `);
+                        } else {
+                            $('#status-badge-' + id)
+                                .removeClass('bg-success')
+                                .addClass('bg-warning text-dark')
+                                .html('<i class="fa fa-clock me-1"></i>Askıda / Gizli');
+
+                            $('#action-cell-' + id).html(`
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-2" onclick="approveReview(${id}, this)" title="Onayla / Yayına Al">
+                                    <i class="fa fa-check me-1"></i>Onayla
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" onclick="confirmDeleteReview(${id})" title="Sil">
+                                    <i class="fa fa-trash me-1"></i>Sil
+                                </button>
+                            `);
+                        }
+
+                        $('#pendingReviewsCountHeader').text(res.pendingCount);
+                        $('.pending-reviews-count').text(res.pendingCount + ' Bekleyen');
+
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: res.isApproved ? 'success' : 'info',
+                            title: res.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    } else {
+                        Swal.fire('Hata', res.message || 'İşlem başarısız.', 'error');
+                        $btn.prop('disabled', false).html(originalHtml);
+                    }
+                },
+                error: function () {
+                    Swal.fire('Hata', 'Sunucu ile iletişim kurulamadı.', 'error');
+                    $btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        }
+
+        function confirmDeleteReview(id) {
+            Swal.fire({
+                title: 'Yorumu Silmek İstiyor musunuz?',
+                text: 'Bu yorum kalıcı olarak silinecektir.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fa fa-trash me-1"></i> Evet, Sil',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('#deleteReviewId').val(id);
+                    $('#deleteReviewForm').submit();
+                }
+            });
+        }
     </script>
 }

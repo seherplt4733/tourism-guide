@@ -1,0 +1,235 @@
+@model TourismGuide.Entity.RoutePlan
+@{
+    ViewData["Title"] = "Yeni Gezi Rotası Ekle";
+    var cities = ViewBag.Cities as List<TourismGuide.Entity.City>;
+    var places = ViewBag.Places as List<TourismGuide.Entity.Place>;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="fa fa-route text-primary me-2"></i>Yeni Gezi Rotası Ekle
+                </h2>
+                <p class="text-muted mb-0">Adım adım gezilebilecek bir turistik rota ve duraklar oluşturun.</p>
+            </div>
+            <a asp-area="Admin" asp-controller="Routes" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa fa-arrow-left me-1"></i> Listeye Dön
+            </a>
+        </div>
+
+        <form asp-area="Admin" asp-controller="Routes" asp-action="Create" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <!-- Genel Rota Bilgileri Kartı -->
+            <div class="admin-card mb-4">
+                <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                    <i class="fa fa-info-circle text-primary me-2"></i>Temel Rota Bilgileri
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label asp-for="Title" class="form-label fw-bold">Rota Başlığı</label>
+                        <input asp-for="Title" class="form-control" placeholder="Örn: 1 Günde Ankara Kültür ve Tarih Rotası" required />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="CityId" class="form-label fw-bold">Şehir</label>
+                        <select asp-for="CityId" class="form-select" required>
+                            <option value="">Şehir Seçiniz...</option>
+                            @if (cities != null)
+                            {
+                                foreach (var city in cities)
+                                {
+                                    <option value="@city.Id">@(city.Name ?? "İsimsiz Şehir")</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="CityId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="EstimatedDuration" class="form-label fw-bold">Tahmini Süre</label>
+                        <input asp-for="EstimatedDuration" class="form-control" placeholder="Örn: 5-6 Saat veya Günübirlik" required />
+                        <span asp-validation-for="EstimatedDuration" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="TotalDistance" class="form-label fw-bold">Toplam Mesafe (Opsiyonel)</label>
+                        <input asp-for="TotalDistance" class="form-control" placeholder="Örn: 6.2 km" />
+                        <span asp-validation-for="TotalDistance" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-center pt-4">
+                        <div class="form-check form-switch fs-5">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" checked>
+                            <label class="form-check-label fs-6 fw-bold ms-2" for="IsActiveSwitch">Rotayı Yayına Al (Aktif)</label>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Kapak Görseli Yükle</label>
+                        <input type="file" name="ImageFile" id="imageFileInput" class="form-control" accept="image/*" />
+                        <small class="text-muted">Rotaya ait vitrin afişi/fotoğrafı seçin.</small>
+                        <div id="imagePreviewContainer" class="mt-2 d-none">
+                            <small class="text-success d-block fw-bold mb-1"><i class="fa fa-eye me-1"></i>Görsel Önizleme:</small>
+                            <img id="imagePreview" src="#" alt="Önizleme" class="rounded border shadow-sm" style="max-height: 100px; object-fit: cover;" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="CoverImageUrl" class="form-label fw-bold">Veya Görsel URL (Opsiyonel)</label>
+                        <input asp-for="CoverImageUrl" class="form-control" placeholder="https://... veya /img/destination-1.jpg" />
+                        <small class="text-muted">Web linki vermek isterseniz buraya yazabilirsiniz.</small>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Summary" class="form-label fw-bold">Rota Özeti ve Tanıtımı</label>
+                        <textarea asp-for="Summary" class="form-control" rows="3" placeholder="Rotanın hedef kitlesi ve neler içerdiği hakkında bilgi verin..." required></textarea>
+                        <span asp-validation-for="Summary" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adım Adım Güzergah Durakları Kartı -->
+            <div class="admin-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">
+                            <i class="fa fa-map-pin text-primary me-2"></i>Güzergah Durakları (Adım Adım)
+                        </h5>
+                        <small class="text-muted">Rotanın başlangıcından bitişine kadar sırasıyla durakları ekleyin.</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="addStop()">
+                        <i class="fa fa-plus me-1"></i> Durak Ekle
+                    </button>
+                </div>
+
+                <div id="stopsContainer">
+                    <!-- Duraklar buraya dinamik eklenecek -->
+                </div>
+
+                <div class="text-center py-3" id="emptyStopsNotice">
+                    <p class="text-muted mb-2">Henüz bir durak eklenmedi.</p>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-4" onclick="addStop()">
+                        <i class="fa fa-plus me-1"></i> İlk Durağı Ekle
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-end mb-5">
+                <a asp-area="Admin" asp-controller="Routes" asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">İptal</a>
+                <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-bold">
+                    <i class="fa fa-save me-1"></i> Rotayı Kaydet
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Görsel Önizleme
+        document.getElementById('imageFileInput')?.addEventListener('change', function (e) {
+            const [file] = this.files;
+            if (file) {
+                const preview = document.getElementById('imagePreview');
+                const container = document.getElementById('imagePreviewContainer');
+                preview.src = URL.createObjectURL(file);
+                container.classList.remove('d-none');
+            }
+        });
+
+        // Durak Ekleme / Kaldırma Mantığı
+        let stopIndex = 0;
+        const placesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(places?.Select(p => new { id = p.Id, title = p.Name ?? p.Title, cityId = p.CityId }) ?? Enumerable.Empty<object>()));
+
+        function addStop(data = null) {
+            document.getElementById('emptyStopsNotice').style.display = 'none';
+            const container = document.getElementById('stopsContainer');
+            const currentIndex = stopIndex++;
+
+            let placeOptions = '<option value="">-- Sistemdeki Mekanlardan Seç (Opsiyonel) --</option>';
+            placesData.forEach(p => {
+                const selected = data && data.placeId == p.id ? 'selected' : '';
+                placeOptions += `<option value="${p.id}" ${selected}>${p.title}</option>`;
+            });
+
+            const stopHtml = `
+                <div class="card border rounded-3 p-3 mb-3 shadow-sm stop-card bg-light" id="stopRow_${currentIndex}">
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                        <span class="badge bg-primary fs-6 stop-badge">
+                            <i class="fa fa-location-dot me-1"></i> <span class="order-number">Durak #${container.children.length + 1}</span>
+                        </span>
+                        <button type="button" class="btn btn-sm btn-outline-danger border-0" onclick="removeStop(${currentIndex})" title="Bu Durağı Kaldır">
+                            <i class="fa fa-trash-can"></i> Kaldır
+                        </button>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Mekan Seçimi</label>
+                            <select name="stops[${currentIndex}].PlaceId" class="form-select form-select-sm" onchange="onPlaceSelect(this, ${currentIndex})">
+                                ${placeOptions}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold mb-1">Durak Başlığı / Özel İsim</label>
+                            <input type="text" name="stops[${currentIndex}].CustomTitle" id="customTitle_${currentIndex}" class="form-control form-control-sm" placeholder="Örn: 1. Durak: Anıtkabir Ziyareti" value="${data ? (data.customTitle || '') : ''}" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold mb-1">Önerilen Gezi Süresi</label>
+                            <input type="text" name="stops[${currentIndex}].SuggestedTime" class="form-control form-control-sm" placeholder="Örn: 1.5 - 2 Saat" value="${data ? (data.suggestedTime || '') : ''}" />
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold mb-1">Sonraki Durağa Geçiş & Ulaşım İpucu</label>
+                            <input type="text" name="stops[${currentIndex}].TransportationTip" class="form-control form-control-sm" placeholder="Örn: Çıkıştan kaleye doğru 10 dk yürüyün veya taksiye binin." value="${data ? (data.transportationTip || '') : ''}" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold mb-1">Ziyaretçi Notu / İpucu</label>
+                            <input type="text" name="stops[${currentIndex}].Note" class="form-control form-control-sm" placeholder="Örn: MüzeKart geçerlidir, sabah erken gitmeniz tavsiye edilir." value="${data ? (data.note || '') : ''}" />
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', stopHtml);
+            recalcStopNumbers();
+        }
+
+        function removeStop(index) {
+            const row = document.getElementById('stopRow_' + index);
+            if (row) {
+                row.remove();
+                recalcStopNumbers();
+            }
+            const container = document.getElementById('stopsContainer');
+            if (container.children.length === 0) {
+                document.getElementById('emptyStopsNotice').style.display = 'block';
+            }
+        }
+
+        function recalcStopNumbers() {
+            const badges = document.querySelectorAll('#stopsContainer .order-number');
+            badges.forEach((b, idx) => {
+                b.innerText = `Durak #${idx + 1}`;
+            });
+        }
+
+        function onPlaceSelect(selectElem, idx) {
+            const titleInput = document.getElementById('customTitle_' + idx);
+            if (selectElem.value && (!titleInput.value || titleInput.value.trim() === '')) {
+                const selectedText = selectElem.options[selectElem.selectedIndex].text;
+                titleInput.value = selectedText;
+            }
+        }
+
+        // Başlangıçta 1 boş durak hazır gelsin
+        document.addEventListener('DOMContentLoaded', function () {
+            addStop();
+        });
+    </script>
+}

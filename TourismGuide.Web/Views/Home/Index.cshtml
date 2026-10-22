@@ -119,46 +119,52 @@
                 foreach (var ev in upcomingEvents)
                 {
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="package-item bg-white rounded shadow-sm overflow-hidden h-100 d-flex flex-column border">
-                            <div class="position-relative overflow-hidden" style="height: 220px;">
-                                <!-- Etkinlik Resmi İçin Güvenli Yol Kontrolü -->
-                                <img class="img-fluid w-100 h-100" 
-                                     src="@(string.IsNullOrEmpty(ev.ImageUrl) ? "/img/destination-1.jpg" : (ev.ImageUrl.StartsWith("http") ? ev.ImageUrl : "/img/" + System.IO.Path.GetFileName(ev.ImageUrl)))" 
-                                     alt="@ev.Title" 
-                                     style="object-fit: cover;" 
-                                     onerror="this.src='/img/destination-1.jpg';">
-                                
-                                @if (!string.IsNullOrEmpty(ev.City?.Name))
-                                {
-                                    <span class="bg-primary text-white position-absolute top-0 start-0 m-3 py-1 px-3 rounded-pill small fw-bold">
-                                        <i class="fa fa-map-marker-alt me-1"></i>@ev.City.Name
+                        <a href="/etkinlik-detay/@ev.Id" class="text-decoration-none text-reset d-block h-100">
+                            <div class="package-item bg-white rounded shadow-sm overflow-hidden h-100 d-flex flex-column border" style="cursor: pointer; transition: transform .2s ease, box-shadow .2s ease;">
+                                <div class="position-relative overflow-hidden" style="height: 220px;">
+                                    <!-- Etkinlik Resmi İçin Güvenli Yol Kontrolü -->
+                                    <img class="img-fluid w-100 h-100" 
+                                         src="@(string.IsNullOrEmpty(ev.ImageUrl) ? "/img/destination-1.jpg" : (ev.ImageUrl.StartsWith("http") ? ev.ImageUrl : "/img/" + System.IO.Path.GetFileName(ev.ImageUrl)))" 
+                                         alt="@ev.Title" 
+                                         style="object-fit: cover;" 
+                                         onerror="this.src='/img/destination-1.jpg';">
+                                    
+                                    @if (!string.IsNullOrEmpty(ev.City?.Name))
+                                    {
+                                        <span class="bg-primary text-white position-absolute top-0 start-0 m-3 py-1 px-3 rounded-pill small fw-bold">
+                                            <i class="fa fa-map-marker-alt me-1"></i>@ev.City.Name
+                                        </span>
+                                    }
+                                    <span class="bg-dark text-white position-absolute bottom-0 end-0 m-3 py-1 px-3 rounded-pill small fw-bold">
+                                        <i class="fa fa-calendar-alt text-primary me-1"></i>@ev.EventDate.ToString("dd MMM", new System.Globalization.CultureInfo("tr-TR"))
                                     </span>
-                                }
-                                <span class="bg-dark text-white position-absolute bottom-0 end-0 m-3 py-1 px-3 rounded-pill small fw-bold">
-                                    <i class="fa fa-calendar-alt text-primary me-1"></i>@ev.EventDate.ToString("dd MMM", new System.Globalization.CultureInfo("tr-TR"))
-                                </span>
-                            </div>
-                            <div class="p-4 d-flex flex-column flex-grow-1">
-                                <h5 class="fw-bold mb-2">@ev.Title</h5>
-                                <p class="text-muted small mb-3 flex-grow-1">@ev.Description</p>
-                                <div class="mb-3 text-muted small">
-                                    <i class="fa fa-map-marker-alt text-primary me-1"></i>@ev.Location
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
-                                    <small class="text-muted"><i class="fa fa-clock text-primary me-1"></i>@ev.EventDate.ToString("HH:mm")</small>
-                                    <div>
-                                        @if (!ev.Price.HasValue || ev.Price.Value == 0)
-                                        {
-                                            <span class="badge bg-success fs-6 py-2 px-3">Ücretsiz</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="fw-bold text-primary fs-5">₺@ev.Price.Value.ToString("N0")</span>
-                                        }
+                                <div class="p-4 d-flex flex-column flex-grow-1">
+                                    <h5 class="fw-bold mb-2">@ev.Title</h5>
+                                    <p class="text-muted small mb-3 flex-grow-1">@ev.Description</p>
+                                    <div class="mb-3 text-muted small">
+                                        <i class="fa fa-map-marker-alt text-primary me-1"></i>@ev.Location
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-auto">
+                                        <small class="text-muted"><i class="fa fa-clock text-primary me-1"></i>@ev.EventDate.ToString("HH:mm")</small>
+                                        <div>
+                                            @if (!ev.Price.HasValue || ev.Price.Value == 0)
+                                            {
+                                                <span class="badge bg-success fs-6 py-2 px-3">Ücretsiz</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="fw-bold text-primary fs-5">₺@ev.Price.Value.ToString("N0")</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="btn btn-sm btn-outline-primary w-100 mt-3 fw-bold d-flex align-items-center justify-content-center">
+                                        <span>Etkinliği İncele</span>
+                                        <i class="fa fa-arrow-right ms-2"></i>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 }
             }
@@ -197,15 +203,15 @@
 
         <!-- KATEGORİLER -->
         <div class="d-flex justify-content-center flex-wrap gap-2 py-2 mb-4 wow fadeInUp" data-wow-delay="0.2s">
-            <a asp-action="Index" class="category-pill @(currentCategoryId == null ? "active" : "")">
-                <i class="fa fa-layer-group"></i> Tümü
+            <a asp-action="Index" asp-fragment="places" class="category-pill @(currentCategoryId == null ? "active" : "")">
+                Tümü
             </a>
             @if (categories != null)
             {
                 foreach (var cat in categories)
                 {
-                    <a asp-action="Index" asp-route-categoryId="@cat.Id" class="category-pill @(currentCategoryId == cat.Id ? "active" : "")">
-                        <i class="@cat.IconCssClass"></i> @cat.Name
+                    <a asp-action="Index" asp-route-categoryId="@cat.Id" asp-fragment="places" class="category-pill @(currentCategoryId == cat.Id ? "active" : "")">
+                        @cat.Name
                     </a>
                 }
             }
@@ -215,11 +221,13 @@
         <div class="row row-cols-1 row-cols-md-3 g-4 mb-5">
             @if (Model != null && Model.Count > 0)
             {
+                var userFavoriteIds = ViewBag.UserFavoritePlaceIds as List<int> ?? new List<int>();
                 foreach (var item in Model)
                 {
+                    bool isFav = userFavoriteIds.Contains(item.Id);
                     <div class="col wow fadeInUp" data-wow-delay="0.1s">
-                        <a asp-controller="Places" asp-action="Details" asp-route-id="@item.Id" class="text-decoration-none text-reset">
-                            <div class="place-card position-relative">
+                        <a href="/mekan-detay/@item.Id" class="text-decoration-none text-reset d-block h-100">
+                            <div class="place-card position-relative h-100 shadow-sm" style="cursor: pointer;">
                                 <div class="position-relative">
                                     <img src="/img/@System.IO.Path.GetFileName(item.ImageUrl)" 
                                          alt="@item.Name" 
@@ -228,8 +236,18 @@
                                          onerror="this.src='/img/destination-1.jpg';" />
                                     
                                     <span class="badge-category">@(item.Category?.Name ?? "Kategori")</span>
-                                    <button type="button" class="btn-heart" onclick="event.preventDefault(); event.stopPropagation();">
-                                        <i class="far fa-heart text-danger"></i>
+                                    @if (item.IsFeatured)
+                                    {
+                                        <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-2 py-1 rounded-pill small fw-bold shadow-sm" style="z-index: 2;">
+                                            <i class="fa fa-star text-dark me-1"></i>Öne Çıkan
+                                        </span>
+                                    }
+                                    <button type="button" 
+                                            class="btn-heart favorite-btn @(isFav ? "active" : "")" 
+                                            data-place-id="@item.Id" 
+                                            onclick="toggleFavorite(event, @item.Id, this)"
+                                            title="@(isFav ? "Favorilerden Çıkar" : "Favorilere Ekle")">
+                                        <i class="@(isFav ? "fas fa-heart text-danger" : "far fa-heart text-danger")"></i>
                                     </button>
                                 </div>
                                 <div class="p-3">
@@ -357,36 +375,188 @@
 
 
 <script>
-    function toggleFavorite(btnElement, placeId) {
-        // Eğer kullanıcı giriş yapmamışsa uyar
+    function toggleFavorite(e, placeId, btnElement) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
         @if (User.Identity != null && !User.Identity.IsAuthenticated)
         {
             <text>
-            alert('Favorilere eklemek için lütfen giriş yapın.');
+            // Giriş yapmamış kullanıcı: localStorage üzerinde geçici saklama ve SweetAlert bildirimi
+            let guestFavs = [];
+            try {
+                guestFavs = JSON.parse(localStorage.getItem('tourist_guest_favorites') || '[]');
+            } catch (err) {
+                guestFavs = [];
+            }
+
+            const icon = btnElement ? btnElement.querySelector('i') : null;
+            let isNowFav = false;
+
+            if (guestFavs.includes(placeId)) {
+                guestFavs = guestFavs.filter(id => id !== placeId);
+                if (icon) {
+                    icon.className = 'far fa-heart text-danger';
+                }
+                if (btnElement) btnElement.classList.remove('active');
+            } else {
+                guestFavs.push(placeId);
+                isNowFav = true;
+                if (icon) {
+                    icon.className = 'fas fa-heart text-danger';
+                }
+                if (btnElement) btnElement.classList.add('active');
+            }
+            localStorage.setItem('tourist_guest_favorites', JSON.stringify(guestFavs));
+
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    title: isNowFav ? 'Favorilere Eklendi' : 'Favorilerden Çıkarıldı',
+                    text: 'Favorilerinizi kalıcı olarak profilinizde saklamak için üye girişi yapabilirsiniz.',
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonColor: '#7bb017',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Giriş Yap',
+                    cancelButtonText: 'Devam Et'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/Account/Login';
+                    }
+                });
+            } else {
+                alert(isNowFav ? 'Mekan favorilere eklendi (Misafir). Kalıcı saklamak için lütfen giriş yapın.' : 'Mekan favorilerden kaldırıldı.');
+            }
+            return;
+            </text>
+        }
+
+        // Giriş yapmış kullanıcı: AJAX ile sunucu endpoint'ine istek
+        fetch('/favori-toggle/' + placeId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const icon = btnElement ? btnElement.querySelector('i') : null;
+                if (data.isFavorite) {
+                    if (icon) icon.className = 'fas fa-heart text-danger';
+                    if (btnElement) {
+                        btnElement.classList.add('active');
+                        btnElement.title = 'Favorilerden Çıkar';
+                    }
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'success',
+                            title: data.message || 'Mekan favorilerinize eklendi!',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                } else {
+                    if (icon) icon.className = 'far fa-heart text-danger';
+                    if (btnElement) {
+                        btnElement.classList.remove('active');
+                        btnElement.title = 'Favorilere Ekle';
+                    }
+                    if (typeof Swal !== 'undefined') {
+                        Swal.fire({
+                            toast: true,
+                            position: 'top-end',
+                            icon: 'info',
+                            title: data.message || 'Mekan favorilerinizden kaldırıldı.',
+                            showConfirmButton: false,
+                            timer: 2000
+                        });
+                    }
+                }
+            } else if (data.requireLogin) {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Giriş Yapmalısınız',
+                        text: data.message || 'Favorilere eklemek için lütfen giriş yapın.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#7bb017',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Giriş Yap',
+                        cancelButtonText: 'Vazgeç'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = '/Account/Login';
+                        }
+                    });
+                } else {
+                    alert(data.message || 'Lütfen giriş yapın.');
+                    window.location.href = '/Account/Login';
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Favori işlem hatası:', error);
+        });
+    }
+
+    // Misafir kullanıcı favorilerini yerel depolamadan yükle
+    document.addEventListener('DOMContentLoaded', function() {
+        @if (User.Identity == null || !User.Identity.IsAuthenticated)
+        {
+            <text>
+            try {
+                const guestFavs = JSON.parse(localStorage.getItem('tourist_guest_favorites') || '[]');
+                guestFavs.forEach(placeId => {
+                    const btn = document.querySelector(`button.favorite-btn[data-place-id="${placeId}"]`);
+                    if (btn) {
+                        btn.classList.add('active');
+                        const icon = btn.querySelector('i');
+                        if (icon) icon.className = 'fas fa-heart text-danger';
+                    }
+                });
+            } catch (err) {}
+            </text>
+        }
+    });
+
+    function toggleAttendance(btnElement, eventId) {
+        @if (User.Identity != null && !User.Identity.IsAuthenticated)
+        {
+            <text>
+            alert('Etkinliğe katılmak için lütfen giriş yapın.');
             window.location.href = '/Account/Login';
             return;
             </text>
         }
 
-        fetch('/Account/ToggleFavorite', {
+        fetch('/Account/ToggleAttendance', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: 'placeId=' + placeId
+            body: 'eventId=' + eventId
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const icon = btnElement.querySelector('i');
-                if (data.isFavorite) {
-                    // Favoriye eklendi -> Kalbi doldur
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
+                const span = btnElement.querySelector('span');
+                if (data.isAttending) {
+                    btnElement.classList.remove('btn-outline-primary');
+                    btnElement.classList.add('btn-success', 'text-white');
+                    if (icon) icon.className = 'fa fa-check me-1';
+                    if (span) span.innerText = 'Katılıyorsunuz';
                 } else {
-                    // Favoriden çıkarıldı -> Kalbi boşalt
-                    icon.classList.remove('fas');
-                    icon.classList.add('far');
+                    btnElement.classList.remove('btn-success', 'text-white');
+                    btnElement.classList.add('btn-outline-primary');
+                    if (icon) icon.className = 'fa fa-calendar-check me-1';
+                    if (span) span.innerText = 'Katılıyorum';
                 }
             } else if (data.requireLogin) {
                 alert(data.message);

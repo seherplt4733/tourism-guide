@@ -17,6 +17,22 @@
       "PackagePath": "staticwebassets/favicon.ico"
     },
     {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/img/06dfafb6_images-2.jpeg",
+      "PackagePath": "staticwebassets/img/06dfafb6_images-2.jpeg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/img/150f8d7b_unnamed.jpg",
+      "PackagePath": "staticwebassets/img/150f8d7b_unnamed.jpg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/img/643e0e5d_istockphoto-542588688-1024x1024.jpg",
+      "PackagePath": "staticwebassets/img/643e0e5d_istockphoto-542588688-1024x1024.jpg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/img/70583ee0_motive-mersin-20260916160319469-520f512e1336.jpg",
+      "PackagePath": "staticwebassets/img/70583ee0_motive-mersin-20260916160319469-520f512e1336.jpg"
+    },
+    {
       "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/img/PamukkaleTravertenleri.jpg",
       "PackagePath": "staticwebassets/img/PamukkaleTravertenleri.jpg"
     },
@@ -127,6 +143,26 @@
     {
       "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/lib/wow/wow.min.js",
       "PackagePath": "staticwebassets/lib/wow/wow.min.js"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/uploads/events/06dfafb6_images-2.jpeg",
+      "PackagePath": "staticwebassets/uploads/events/06dfafb6_images-2.jpeg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/uploads/events/70583ee0_motive-mersin-20260916160319469-520f512e1336.jpg",
+      "PackagePath": "staticwebassets/uploads/events/70583ee0_motive-mersin-20260916160319469-520f512e1336.jpg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/uploads/places/150f8d7b_unnamed.jpg",
+      "PackagePath": "staticwebassets/uploads/places/150f8d7b_unnamed.jpg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/uploads/profiles/878b2778-c991-41b3-94eb-6de433709d6d_1932dd6a-705d-4f7f-a459-8f5686c9e0a5.jpg",
+      "PackagePath": "staticwebassets/uploads/profiles/878b2778-c991-41b3-94eb-6de433709d6d_1932dd6a-705d-4f7f-a459-8f5686c9e0a5.jpg"
+    },
+    {
+      "Id": "/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/wwwroot/uploads/routes/643e0e5d_istockphoto-542588688-1024x1024.jpg",
+      "PackagePath": "staticwebassets/uploads/routes/643e0e5d_istockphoto-542588688-1024x1024.jpg"
     },
     {
       "Id": "obj/Debug/net8.0/staticwebassets/msbuild.TourismGuide.Web.Microsoft.AspNetCore.StaticWebAssets.props",

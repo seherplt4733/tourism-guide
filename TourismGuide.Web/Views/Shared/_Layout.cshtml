@@ -53,23 +53,13 @@
         <div class="row gx-0">
             <div class="col-lg-8 text-center text-lg-start mb-2 mb-lg-0">
                 <div class="d-inline-flex align-items-center" style="height: 45px;">
-                    <small class="me-3 text-light"><i class="fa fa-map-marker-alt me-2"></i>123 Street, New York, USA</small>
-                    <small class="me-3 text-light"><i class="fa fa-phone-alt me-2"></i>+012 345 6789</small>
-                    <small class="text-light"><i class="fa fa-envelope-open me-2"></i>info@example.com</small>
+                    <small class="me-3 text-light"><i class="fa fa-phone-alt me-2"></i>+90 850 123 45 67</small>
+                    <small class="text-light"><i class="fa fa-envelope-open me-2"></i>info@tourist.com</small>
                 </div>
             </div>
             <div class="col-lg-4 text-center text-lg-end">
                 <div class="d-inline-flex align-items-center" style="height: 45px;">
-                    <a class="btn btn-sm btn-outline-light btn-sm-square rounded-circle me-2" href="https://twitter.com/login" target="_blank"><i class="fab fa-twitter fw-normal"></i></a>
-                    <a class="btn btn-sm btn-outline-light btn-sm-square rounded-circle me-2" href="https://www.facebook.com/login" target="_blank"><i class="fab fa-facebook-f fw-normal"></i></a>
-                    <a class="btn btn-sm btn-outline-light btn-sm-square rounded-circle me-2" href="https://www.linkedin.com/login" target="_blank"><i class="fab fa-linkedin-in fw-normal"></i></a>
-                    <a class="btn btn-sm btn-outline-light btn-sm-square rounded-circle me-2" href="https://www.instagram.com/accounts/login" target="_blank"><i class="fab fa-instagram fw-normal"></i></a>
-                    <a class="btn btn-sm btn-outline-light btn-sm-square rounded-circle me-2" href="https://www.youtube.com" target="_blank"><i class="fab fa-youtube fw-normal"></i></a>
-                    
-                    <!-- ADMIN GİRİŞİ KİLİT İKONU (DÜZELTİLDİ) -->
-                    <a class="btn btn-sm btn-outline-warning btn-sm-square rounded-circle ms-2" asp-area="" asp-controller="Account" asp-action="Login" asp-route-returnUrl="/Admin" title="Yönetici Girişi">
-                        <i class="fa fa-user-lock"></i>
-                    </a>
+                    <small class="text-light"><i class="fa fa-compass text-primary me-2"></i>Türkiye Gezi ve Rota Rehberi</small>
                 </div>
             </div>
         </div>
@@ -87,34 +77,65 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarCollapse">
                 <div class="navbar-nav ms-auto py-0">
-                    <a asp-controller="Home" asp-action="Index" class="nav-item nav-link @(ViewData["IsHome"] as bool? == true ? "active" : "")">Home</a>
-                    <a href="/#about" class="nav-item nav-link">About</a>
-                    <a href="/#service" class="nav-item nav-link">Services</a>
-                    <a href="/#destination" class="nav-item nav-link">Destination</a>
+                    <a asp-controller="Home" asp-action="Index" class="nav-item nav-link @(ViewData["IsHome"] as bool? == true ? "active" : "")">Anasayfa</a>
+                    <a href="/#about" class="nav-item nav-link">Hakkımızda</a>
+                    <a href="/#service" class="nav-item nav-link">Hizmetler</a>
+                    <a href="/rotalar" class="nav-item nav-link @(ViewContext.HttpContext.Request.Path.StartsWithSegments("/rotalar") || ViewContext.HttpContext.Request.Path.StartsWithSegments("/rota-detay") ? "active" : "")">Rotalar</a>
                     <a href="/?lang=@currentLang#events" class="nav-item nav-link">Etkinlikler</a>
+                    <a href="/takvim" class="nav-item nav-link @(ViewContext.HttpContext.Request.Path == "/takvim" || ViewContext.RouteData.Values["controller"]?.ToString() == "Calendar" ? "active" : "")">Takvim</a>
                     <a href="/#places" class="nav-item nav-link">Mekanlar</a>
-                    <a href="/#contact" class="nav-item nav-link">Contact</a>
+                    <a href="/#contact" class="nav-item nav-link">İletişim</a>
                 </div>
 
                 <!-- KULLANICI GİRİŞ / KAYIT ALANI (YENİ EKLENDİ) -->
                 <div class="d-flex align-items-center ms-3">
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <div class="dropdown">
-                            <button class="btn btn-outline-primary dropdown-toggle rounded-pill px-3" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa fa-user-circle me-1"></i> @User.Identity.Name
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
-                               <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fa fa-heart text-danger me-2"></i>Favorilerim</a></li>
-<li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fa fa-user text-primary me-2"></i>Profilim</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                        <button type="submit" class="dropdown-item text-danger"><i class="fa fa-sign-out-alt me-2"></i>Çıkış Yap</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <!-- Admin Dropdown (Sarı Buton) -->
+                            <div class="dropdown">
+                                <button class="btn btn-warning dropdown-toggle rounded-pill px-3 fw-bold text-dark shadow-sm" type="button" id="adminDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-shield-halved me-1"></i> Yönetici Paneli
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="adminDropdown">
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Home" asp-action="Index"><i class="fa fa-gauge-high text-primary me-2"></i>Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Places" asp-action="Index"><i class="fa fa-location-dot text-primary me-2"></i>Mekanlar</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Cities" asp-action="Index"><i class="fa fa-city text-primary me-2"></i>Şehirler</a></li>
+                                    <li><a class="dropdown-item" href="/yonetim/rotalar"><i class="fa fa-route text-primary me-2"></i>Rotalar</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Events" asp-action="Index"><i class="fa fa-calendar-alt text-primary me-2"></i>Etkinlikler</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Reviews" asp-action="Index"><i class="fa fa-comments text-primary me-2"></i>Yorumlar</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Messages" asp-action="Index"><i class="fa fa-envelope text-primary me-2"></i>Mesajlar</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger"><i class="fa fa-sign-out-alt me-2"></i>Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Normal Kullanıcı Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-primary dropdown-toggle rounded-pill px-3" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa fa-user-circle me-1"></i> @User.Identity.Name
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fa fa-heart text-danger me-2"></i>Favorilerim</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile"><i class="fa fa-user text-primary me-2"></i>Profilim</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="dropdown-item text-danger"><i class="fa fa-sign-out-alt me-2"></i>Çıkış Yap</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
                     }
                     else
                     {
@@ -122,8 +143,6 @@
                         <a asp-controller="Account" asp-action="Register" class="btn btn-sm btn-primary rounded-pill">Kayıt Ol</a>
                     }
                 </div>
-                
-                <a href="/#places" class="btn btn-primary rounded-pill py-2 px-4 ms-3">Buy Pro Version</a>
             </div>
         </nav>
 
@@ -133,12 +152,12 @@
                 <div class="container py-5">
                     <div class="row justify-content-center py-5">
                         <div class="col-lg-10 pt-lg-5 mt-lg-5 text-center">
-                            <h1 class="display-3 text-white mb-3 animated slideInDown">Enjoy Your Vacation With Us</h1>
-                            <p class="fs-4 text-white mb-4 animated slideInDown">Tempor erat elitr rebum at clita diam amet diam et eos erat ipsum lorem sit</p>
+                            <h1 class="display-3 text-white mb-3 animated slideInDown">Türkiye'nin Tarihi ve Doğal Güzelliklerini Keşfedin</h1>
+                            <p class="fs-4 text-white mb-4 animated slideInDown">En popüler şehirler, müzeler, adım adım gezi rotaları ve güncel etkinlik rehberi.</p>
                             <div class="position-relative w-75 mx-auto animated slideInDown">
-                                <form asp-controller="Home" asp-action="Index" method="get">
-                                    <input class="form-control border-0 rounded-pill w-100 py-3 ps-4 pe-5" type="text" name="searchKeyword" value="@ViewBag.SearchKeyword" placeholder="Eg: Thailand">
-                                    <button type="submit" class="btn btn-primary rounded-pill py-2 px-4 position-absolute top-0 end-0 me-2" style="margin-top: 7px;">Search</button>
+                                <form action="/mekanlar#places" method="get">
+                                    <input class="form-control border-0 rounded-pill w-100 py-3 ps-4 pe-5" type="text" name="search" value="@ViewBag.SearchKeyword" placeholder="Mekan, şehir veya rota arayın... (Örn: Anıtkabir)">
+                                    <button type="submit" class="btn btn-primary rounded-pill py-2 px-4 position-absolute top-0 end-0 me-2" style="margin-top: 7px;">Ara</button>
                                 </form>
                             </div>
                         </div>
@@ -183,10 +202,10 @@
                     <a class="btn btn-link" href="">FAQs & Help</a>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <h4 class="text-white mb-3">Contact</h4>
-                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
-                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                    <h4 class="text-white mb-3">İletişim</h4>
+                    <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Kızılay, Çankaya, Ankara, Türkiye</p>
+                    <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+90 850 123 45 67</p>
+                    <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@tourist.com</p>
                     <div class="d-flex pt-2">
                         <a class="btn btn-outline-light btn-social me-1" href="https://twitter.com/login" target="_blank"><i class="fab fa-twitter"></i></a>
                         <a class="btn btn-outline-light btn-social me-1" href="https://www.facebook.com/login" target="_blank"><i class="fab fa-facebook-f"></i></a>

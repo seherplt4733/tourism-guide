@@ -1,61 +1,318 @@
-@model Microsoft.AspNetCore.Identity.IdentityUser
+@model TourismGuide.Entity.AppUser
 @{
     ViewData["Title"] = "Profilim";
     var favorites = ViewBag.Favorites as List<TourismGuide.Entity.Favorite>;
+    var reviews = ViewBag.Reviews as List<TourismGuide.Entity.Review>;
+    var attendances = ViewBag.Attendances as List<TourismGuide.Entity.EventAttendance>;
 }
 
 <div class="container py-5">
     <div class="row">
-        <div class="col-lg-3">
+        <!-- Sol Menü -->
+        <div class="col-lg-3 mb-4 mb-lg-0">
             <div class="bg-white rounded shadow-sm border p-4 text-center">
-                <i class="fa fa-user-circle text-primary" style="font-size: 5rem;"></i>
-                <h4 class="mt-3 mb-1">Hoş Geldin!</h4>
-                <p class="text-muted small">@Model.Email</p>
-                <hr>
-                <div class="d-grid gap-2">
-                    <a href="/Account/Profile" class="btn btn-primary"><i class="fa fa-heart me-2"></i>Favorilerim</a>
-                    <a href="#" class="btn btn-outline-secondary"><i class="fa fa-comment me-2"></i>Yorumlarım</a>
-                    <form asp-controller="Account" asp-action="Logout" method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-outline-danger w-100"><i class="fa fa-sign-out-alt me-2"></i>Çıkış Yap</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-9">
-            <div class="bg-white rounded shadow-sm border p-4">
-                <h4 class="mb-4 text-primary"><i class="fa fa-heart me-2"></i>Favori Mekanlarım (@(favorites?.Count ?? 0))</h4>
-                @if (favorites != null && favorites.Count > 0)
+                @if (!string.IsNullOrEmpty(Model.ProfilePictureUrl))
                 {
-                    <div class="row g-4">
-                        @foreach (var fav in favorites)
-                        {
-                            var place = fav.Place;
-                            if (place != null)
-                            {
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card h-100 shadow-sm border-0">
-                                        <img src="/img/@System.IO.Path.GetFileName(place.ImageUrl)" class="card-img-top" alt="@place.Title" style="height: 150px; object-fit: cover;">
-                                        <div class="card-body">
-                                            <h5 class="card-title">@place.Title</h5>
-                                            <p class="card-text text-muted small">@(place.City?.Name ?? "Türkiye")</p>
-                                            <a href="/Places/Details/@place.Id" class="btn btn-sm btn-outline-primary w-100">Detayları Gör</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        }
-                    </div>
+                    <img src="@Model.ProfilePictureUrl" 
+                         alt="@Model.UserName" 
+                         class="rounded-circle shadow-sm border mb-2" 
+                         style="width: 100px; height: 100px; object-fit: cover;" 
+                         onerror="this.src='/img/team-1.jpg';" />
                 }
                 else
                 {
-                    <div class="text-center py-5">
-                        <i class="fa fa-heart-broken text-muted" style="font-size: 3rem;"></i>
-                        <p class="text-muted mt-3">Henüz favori mekanınız bulunmuyor.</p>
-                        <a href="/" class="btn btn-primary mt-2">Mekanları Keşfet</a>
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-2 fw-bold fs-2 shadow-sm" style="width: 100px; height: 100px;">
+                        @(!string.IsNullOrEmpty(Model.UserName) ? Model.UserName.Substring(0, 1).ToUpper() : "U")
                     </div>
                 }
+
+                <h4 class="mt-2 mb-1">Hoş Geldin!</h4>
+                <p class="text-muted small mb-2">@Model.Email</p>
+
+                <!-- Profil Fotoğrafı Yükleme Formu -->
+                <form asp-controller="Account" asp-action="UploadProfilePicture" method="post" enctype="multipart/form-data" class="mb-3">
+                    @Html.AntiForgeryToken()
+                    <label class="form-label text-muted small mb-1" style="font-size: 0.75rem;">Profil Fotoğrafı Değiştir</label>
+                    <div class="input-group input-group-sm">
+                        <input type="file" name="profilePicture" class="form-control" accept="image/*" required>
+                        <button class="btn btn-primary" type="submit" title="Fotoğraf Yükle">
+                            <i class="fa fa-upload"></i>
+                        </button>
+                    </div>
+                </form>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success py-1 px-2 small mb-2" role="alert">
+                        <i class="fa fa-check-circle me-1"></i>@TempData["SuccessMessage"]
+                    </div>
+                }
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger py-1 px-2 small mb-2" role="alert">
+                        <i class="fa fa-exclamation-circle me-1"></i>@TempData["ErrorMessage"]
+                    </div>
+                }
+                <hr>
+                <div class="nav flex-column nav-pills gap-2" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button class="nav-link active text-start py-2 px-3 d-flex justify-content-between align-items-center" 
+                            id="v-pills-favorites-tab" 
+                            data-bs-toggle="pill" 
+                            data-bs-target="#v-pills-favorites" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="v-pills-favorites" 
+                            aria-selected="true">
+                        <span><i class="fa fa-heart me-2 text-danger"></i>Favorilerim</span>
+                        <span class="badge bg-primary rounded-pill">@(favorites?.Count ?? 0)</span>
+                    </button>
+
+                    <button class="nav-link text-start py-2 px-3 d-flex justify-content-between align-items-center" 
+                            id="v-pills-reviews-tab" 
+                            data-bs-toggle="pill" 
+                            data-bs-target="#v-pills-reviews" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="v-pills-reviews" 
+                            aria-selected="false">
+                        <span><i class="fa fa-comment me-2 text-info"></i>Yorumlarım</span>
+                        <span class="badge bg-secondary rounded-pill">@(reviews?.Count ?? 0)</span>
+                    </button>
+
+                    <button class="nav-link text-start py-2 px-3 d-flex justify-content-between align-items-center" 
+                            id="v-pills-events-tab" 
+                            data-bs-toggle="pill" 
+                            data-bs-target="#v-pills-events" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="v-pills-events" 
+                            aria-selected="false">
+                        <span><i class="fa fa-calendar-check me-2 text-success"></i>Etkinliklerim</span>
+                        <span class="badge bg-success rounded-pill">@(attendances?.Count ?? 0)</span>
+                    </button>
+                </div>
+
+                <hr class="my-3">
+
+                <form asp-controller="Account" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger w-100">
+                        <i class="fa fa-sign-out-alt me-2"></i>Çıkış Yap
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sağ İçerik Alanı -->
+        <div class="col-lg-9">
+            <div class="tab-content" id="v-pills-tabContent">
+
+                <!-- 1. SEKME: FAVORİLERİM -->
+                <div class="tab-pane fade show active" id="v-pills-favorites" role="tabpanel" aria-labelledby="v-pills-favorites-tab">
+                    <div class="bg-white rounded shadow-sm border p-4">
+                        <h4 class="mb-4 text-primary"><i class="fa fa-heart me-2 text-danger"></i>Favori Mekanlarım (@(favorites?.Count ?? 0))</h4>
+                        @if (favorites != null && favorites.Count > 0)
+                        {
+                            <div class="row g-4">
+                                @foreach (var fav in favorites)
+                                {
+                                    var place = fav.Place;
+                                    if (place != null)
+                                    {
+                                        <div class="col-md-6 col-lg-4" id="fav-card-@place.Id">
+                                            <div class="card h-100 shadow-sm border-0">
+                                                <img src="/img/@System.IO.Path.GetFileName(place.ImageUrl)" 
+                                                     class="card-img-top" 
+                                                     alt="@place.Title" 
+                                                     style="height: 150px; object-fit: cover;"
+                                                     onerror="this.src='/img/destination-1.jpg';">
+                                                <div class="card-body d-flex flex-column">
+                                                    <h5 class="card-title">@place.Title</h5>
+                                                    <p class="card-text text-muted small mb-3">@(place.City?.Name ?? "Türkiye")</p>
+                                                    <div class="mt-auto">
+                                                        <a href="/mekan-detay/@place.Id" class="btn btn-sm btn-outline-primary w-100">Detayları Gör</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fa fa-heart-broken text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-3">Henüz favori mekanınız bulunmuyor.</p>
+                                <a href="/" class="btn btn-primary mt-2">Mekanları Keşfet</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- 2. SEKME: YORUMLARIM -->
+                <div class="tab-pane fade" id="v-pills-reviews" role="tabpanel" aria-labelledby="v-pills-reviews-tab">
+                    <div class="bg-white rounded shadow-sm border p-4">
+                        <h4 class="mb-4 text-primary"><i class="fa fa-comment me-2 text-info"></i>Yorumlarım (@(reviews?.Count ?? 0))</h4>
+                        @if (reviews != null && reviews.Count > 0)
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var rev in reviews)
+                                {
+                                    <div class="list-group-item px-0 py-3 border-bottom">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <div>
+                                                <a href="/mekan-detay/@rev.PlaceId" class="fw-bold text-dark text-decoration-none fs-6">
+                                                    <i class="fa fa-location-dot text-primary me-1"></i>@(rev.Place?.Name ?? "Mekan")
+                                                </a>
+                                                <small class="text-muted ms-2">@rev.CreatedAt.ToString("dd MMMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))</small>
+                                            </div>
+                                            <div>
+                                                @if (rev.IsApproved)
+                                                {
+                                                    <span class="badge bg-success">
+                                                        <i class="fa fa-check-circle me-1"></i>Onaylandı
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fa fa-clock me-1"></i>Onay Bekliyor
+                                                    </span>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <span class="text-warning small">
+                                                @for (int i = 1; i <= 5; i++)
+                                                {
+                                                    if (i <= rev.Rating)
+                                                    {
+                                                        <i class="fa-solid fa-star"></i>
+                                                    }
+                                                    else
+                                                    {
+                                                        <i class="fa-regular fa-star text-muted"></i>
+                                                    }
+                                                }
+                                            </span>
+                                        </div>
+                                        <p class="text-secondary mb-0">@rev.Comment</p>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fa fa-comment-dots text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-3">Henüz bir mekan için yorum yapmadınız.</p>
+                                <a href="/" class="btn btn-primary mt-2">Mekanları Keşfet ve Yorum Yap</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- 3. SEKME: ETKİNLİKLERİM -->
+                <div class="tab-pane fade" id="v-pills-events" role="tabpanel" aria-labelledby="v-pills-events-tab">
+                    <div class="bg-white rounded shadow-sm border p-4">
+                        <h4 class="mb-4 text-primary"><i class="fa fa-calendar-check me-2 text-success"></i>Katıldığım Etkinlikler (@(attendances?.Count ?? 0))</h4>
+                        @if (attendances != null && attendances.Count > 0)
+                        {
+                            <div class="row g-4">
+                                @foreach (var att in attendances)
+                                {
+                                    var ev = att.Event;
+                                    if (ev != null)
+                                    {
+                                        <div class="col-md-6 col-lg-4" id="event-card-@ev.Id">
+                                            <div class="card h-100 shadow-sm border-0">
+                                                <div class="position-relative" style="height: 150px;">
+                                                    <img src="@(string.IsNullOrEmpty(ev.ImageUrl) ? "/img/destination-1.jpg" : (ev.ImageUrl.StartsWith("http") ? ev.ImageUrl : "/img/" + System.IO.Path.GetFileName(ev.ImageUrl)))" 
+                                                         class="card-img-top h-100 w-100" 
+                                                         alt="@ev.Title" 
+                                                         style="object-fit: cover;"
+                                                         onerror="this.src='/img/destination-1.jpg';">
+                                                    @if (!string.IsNullOrEmpty(ev.City?.Name))
+                                                    {
+                                                        <span class="bg-primary text-white position-absolute top-0 start-0 m-2 py-1 px-2 rounded-pill small fw-bold" style="font-size: 0.75rem;">
+                                                            <i class="fa fa-map-marker-alt me-1"></i>@ev.City.Name
+                                                        </span>
+                                                    }
+                                                </div>
+                                                <div class="card-body d-flex flex-column">
+                                                    <h5 class="card-title fs-6 fw-bold mb-1">@ev.Title</h5>
+                                                    <small class="text-muted mb-2">
+                                                        <i class="fa fa-calendar-alt text-primary me-1"></i>@ev.EventDate.ToString("dd MMMM yyyy HH:mm", new System.Globalization.CultureInfo("tr-TR"))
+                                                    </small>
+                                                    <small class="text-muted mb-3">
+                                                        <i class="fa fa-map-marker-alt text-primary me-1"></i>@ev.Location
+                                                    </small>
+                                                    <div class="mt-auto d-flex justify-content-between align-items-center pt-2 border-top">
+                                                        <div>
+                                                            @if (!ev.Price.HasValue || ev.Price.Value == 0)
+                                                            {
+                                                                <span class="badge bg-success">Ücretsiz</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="fw-bold text-primary">₺@ev.Price.Value.ToString("N0")</span>
+                                                            }
+                                                        </div>
+                                                        <button type="button" 
+                                                                class="btn btn-sm btn-outline-danger" 
+                                                                onclick="cancelAttendance(this, @ev.Id)" 
+                                                                title="Katılımı İptal Et">
+                                                            <i class="fa fa-times me-1"></i>İptal Et
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                <i class="fa fa-calendar-times text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-3">Henüz katıldığınız bir etkinlik bulunmuyor.</p>
+                                <a href="/#events" class="btn btn-primary mt-2">Etkinlikleri Keşfet</a>
+                            </div>
+                        }
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    function cancelAttendance(btnElement, eventId) {
+        if (!confirm('Bu etkinliğe katılımınızı iptal etmek istediğinize emin misiniz?')) {
+            return;
+        }
+
+        fetch('/Account/ToggleAttendance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'eventId=' + eventId
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && !data.isAttending) {
+                const card = document.getElementById('event-card-' + eventId);
+                if (card) {
+                    card.remove();
+                }
+                // Sayfayı yenileyerek sayaçları güncelle
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Hata:', error));
+    }
+</script>

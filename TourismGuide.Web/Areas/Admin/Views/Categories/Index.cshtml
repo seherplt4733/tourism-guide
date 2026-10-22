@@ -1,0 +1,146 @@
+@model List<TourismGuide.Entity.Category>
+@{
+    ViewData["Title"] = "Kategori Yönetimi";
+    var cultureTr = new System.Globalization.CultureInfo("tr-TR");
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold text-dark mb-1">
+            <i class="fa fa-tags text-primary me-2"></i>Kategori Yönetimi
+        </h4>
+        <p class="text-muted small mb-0">Sistemdeki tüm kategorileri listeleyin ve yönetin.</p>
+    </div>
+    <a href="/yonetim/kategoriler/yeni" class="btn btn-primary rounded-pill px-4">
+        <i class="fa fa-plus me-1"></i> Yeni Kategori Ekle
+    </a>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fa fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fa fa-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Kapat"></button>
+    </div>
+}
+
+<div class="admin-card">
+    <div class="table-responsive">
+        <table id="categoriesTable" class="table table-hover align-middle w-100">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 80px;" class="text-center">İkon</th>
+                    <th style="min-width: 240px;">Kategori Adı</th>
+                    <th>Bağlı Mekan Sayısı</th>
+                    <th class="text-end" style="min-width: 180px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    foreach (var category in Model)
+                    {
+                        var placesCount = category.Places?.Count ?? 0;
+                        var rawName = category.Name ?? string.Empty;
+                        var formattedName = cultureTr.TextInfo.ToTitleCase(rawName.ToLower(cultureTr));
+
+                        var iconClass = !string.IsNullOrWhiteSpace(category.IconCssClass) ? category.IconCssClass.Trim() : "fa-tag";
+                        if (!iconClass.StartsWith("fa-") && !iconClass.StartsWith("fa ") && !iconClass.StartsWith("fas ") && !iconClass.StartsWith("far "))
+                        {
+                            iconClass = "fa-" + iconClass;
+                        }
+                        if (!iconClass.Contains(" "))
+                        {
+                            iconClass = "fa " + iconClass;
+                        }
+
+                        <tr>
+                            <td class="text-center">
+                                <div class="rounded-circle shadow-sm mx-auto d-flex align-items-center justify-content-center" 
+                                     style="width: 44px; height: 44px; background-color: rgba(134, 184, 23, 0.15); color: #86B817; border: 2px solid #e9ecef; font-size: 1.2rem;"
+                                     title="@formattedName">
+                                    <i class="@iconClass"></i>
+                                </div>
+                            </td>
+                            <td>
+                                <strong class="text-dark fs-6 text-capitalize" style="font-weight: 600;">@formattedName</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-primary border rounded-pill px-3 py-2 fw-bold">
+                                    <i class="fa fa-location-dot me-1"></i>@placesCount Mekan
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-2">
+                                    <a href="/yonetim/kategoriler/duzenle/@category.Id" class="btn btn-sm btn-outline-warning rounded-pill px-3" title="Düzenle">
+                                        <i class="fa fa-pen-to-square me-1"></i> Düzenle
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="confirmDeleteCategory(@category.Id, '@Html.Raw(formattedName.Replace("'", "\\'"))', @placesCount)" title="Sil">
+                                        <i class="fa fa-trash me-1"></i> Sil
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Silme İşlemi Formu -->
+<form id="deleteCategoryForm" method="post" style="display: none;">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#categoriesTable').DataTable({
+                responsive: true,
+                pageLength: 10,
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/tr.json'
+                }
+            });
+        });
+
+        function confirmDeleteCategory(id, name, placesCount) {
+            if (placesCount > 0) {
+                Swal.fire({
+                    title: 'Kategori Silinemez!',
+                    text: '"' + name + '" kategorisine bağlı ' + placesCount + ' adet mekan bulunmaktadır. Bu kategoriyi silebilmek için önce bağlı mekanları silmeli veya başka bir kategoriye taşımalısınız.',
+                    icon: 'error',
+                    confirmButtonColor: '#86B817',
+                    confirmButtonText: 'Tamam'
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Kategoriyi Silmek İstiyor musunuz?',
+                text: '"' + name + '" adlı kategori kalıcı olarak silinecektir. Bu işlem geri alınamaz!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fa fa-trash me-1"></i> Evet, Sil',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var form = document.getElementById('deleteCategoryForm');
+                    form.action = '/yonetim/kategoriler/sil/' + id;
+                    form.submit();
+                }
+            });
+        }
+    </script>
+}

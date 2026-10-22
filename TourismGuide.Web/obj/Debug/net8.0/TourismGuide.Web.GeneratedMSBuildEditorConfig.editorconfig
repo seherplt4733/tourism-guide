@@ -18,12 +18,36 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = /Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web
 build_property._RazorSourceGeneratorDebug = 
 
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Categories/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2F0ZWdvcmllcy9DcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Categories/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2F0ZWdvcmllcy9FZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Categories/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2F0ZWdvcmllcy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Cities/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2l0aWVzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Cities/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2l0aWVzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Cities/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvQ2l0aWVzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Events/Create.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvRXZlbnRzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Events/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvRXZlbnRzL0VkaXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Events/Index.cshtml]
@@ -34,12 +58,36 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Messages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvTWVzc2FnZXMvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Places/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUGxhY2VzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Places/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUGxhY2VzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Places/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUGxhY2VzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Reviews/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUmV2aWV3cy9JbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Routes/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUm91dGVzL0NyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Routes/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUm91dGVzL0VkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Routes/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvUm91dGVzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Areas/Admin/Views/Shared/_Layout.cshtml]
@@ -54,6 +102,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = QXJlYXMvQWRtaW4vVmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Account/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9BY2Nlc3NEZW5pZWQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Account/Login.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9Mb2dpbi5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -66,6 +118,22 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWNjb3VudC9SZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Calendar/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQ2FsZW5kYXIvSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Events/Calendar.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXZlbnRzL0NhbGVuZGFyLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Events/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXZlbnRzL0RldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Events/Details.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvRXZlbnRzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -76,6 +144,14 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Places/Details.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUGxhY2VzL0RldGFpbHMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Routes/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm91dGVzL0RldGFpbC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Routes/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvUm91dGVzL0luZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/seherpolat/Desktop/CompanyProject/tourism-guide/TourismGuide.Web/Views/Shared/Error.cshtml]

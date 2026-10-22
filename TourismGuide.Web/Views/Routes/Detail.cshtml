@@ -1,0 +1,358 @@
+@model TourismGuide.Entity.RoutePlan
+@{
+    ViewData["Title"] = Model.Title;
+    var stops = Model.Stops?.OrderBy(s => s.StopOrder).ToList() ?? new List<TourismGuide.Entity.RouteStop>();
+}
+
+<!-- Leaflet CDN -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<style>
+    .timeline-container {
+        position: relative;
+        padding-left: 55px;
+    }
+    .timeline-line {
+        position: absolute;
+        left: 24px;
+        top: 25px;
+        bottom: 40px;
+        width: 3px;
+        background: #e2e8f0;
+        z-index: 1;
+    }
+    .timeline-step {
+        position: relative;
+        margin-bottom: 2.5rem;
+    }
+    .timeline-badge {
+        position: absolute;
+        left: -55px;
+        top: 0;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background-color: #86B817;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 14px rgba(134, 184, 23, 0.4);
+        border: 4px solid #ffffff;
+        z-index: 2;
+    }
+    .transit-connector {
+        position: relative;
+        margin: 1.5rem 0 1.5rem 15px;
+        padding: 10px 18px;
+        background-color: #f8fafc;
+        border-left: 3px dashed #86B817;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+    .tip-box {
+        background-color: #fffbeb;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 0 8px 8px 0;
+        font-size: 0.92rem;
+        color: #92400e;
+    }
+    @@media print {
+        .navbar, .footer, .btn-print-hide, .topbar, #topbar {
+            display: none !important;
+        }
+        .container {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding: 0 !important;
+        }
+        .timeline-container {
+            padding-left: 40px;
+        }
+        .timeline-badge {
+            left: -40px;
+            width: 36px;
+            height: 36px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="container-xxl py-5">
+    <div class="container">
+        <!-- Breadcrumb & Üst Eylemler -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Anasayfa</a></li>
+                    <li class="breadcrumb-item"><a href="/rotalar">Gezi Rotaları</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
+                </ol>
+            </nav>
+            <div class="d-flex gap-2 btn-print-hide">
+                <button type="button" class="btn btn-outline-primary rounded-pill px-3" onclick="window.print()">
+                    <i class="fa fa-print me-1"></i> Planı Yazdır / PDF
+                </button>
+                <a href="/rotalar" class="btn btn-outline-secondary rounded-pill px-3">
+                    <i class="fa fa-arrow-left me-1"></i> Tüm Rotalar
+                </a>
+            </div>
+        </div>
+
+        <!-- Rota Üst Bilgi Başlığı -->
+        <div class="bg-white rounded-3 shadow-sm border p-4 p-md-5 mb-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-8">
+                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                        @if (Model.City != null)
+                        {
+                            <span class="badge bg-primary fs-6 px-3 py-2 rounded-pill">
+                                <i class="fa fa-city me-1"></i>@Model.City.Name
+                            </span>
+                        }
+                        <span class="badge bg-light text-dark border fs-6 px-3 py-2 rounded-pill">
+                            <i class="fa fa-clock text-primary me-1"></i>@Model.EstimatedDuration
+                        </span>
+                        @if (!string.IsNullOrEmpty(Model.TotalDistance))
+                        {
+                            <span class="badge bg-light text-secondary border fs-6 px-3 py-2 rounded-pill">
+                                <i class="fa fa-person-walking text-primary me-1"></i>@Model.TotalDistance
+                            </span>
+                        }
+                        <span class="badge bg-light text-success border fs-6 px-3 py-2 rounded-pill">
+                            <i class="fa fa-map-pin text-primary me-1"></i>@stops.Count Durak
+                        </span>
+                    </div>
+
+                    <h1 class="display-6 fw-bold text-dark mb-3">@Model.Title</h1>
+                    <p class="text-secondary mb-0" style="font-size: 1.1rem; line-height: 1.8;">
+                        @Model.Summary
+                    </p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    @{
+                        var heroImg = string.IsNullOrEmpty(Model.CoverImageUrl) 
+                            ? "/img/destination-1.jpg" 
+                            : (Model.CoverImageUrl.StartsWith("http") || Model.CoverImageUrl.StartsWith("/") 
+                                ? Model.CoverImageUrl 
+                                : (Model.CoverImageUrl.StartsWith("uploads/") ? "/" + Model.CoverImageUrl : "/img/" + System.IO.Path.GetFileName(Model.CoverImageUrl)));
+                    }
+                    <img src="@heroImg" alt="@Model.Title" class="img-fluid rounded-3 shadow-sm w-100" style="max-height: 240px; object-fit: cover;" onerror="this.onerror=null; this.src='/img/destination-1.jpg';" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <!-- Sol Kolon: Dikey Zaman Çizelgesi (Timeline) -->
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4">
+                    <h3 class="fw-bold text-dark mb-0">
+                        <i class="fa fa-shoe-prints text-primary me-2"></i>Adım Adım Güzergah Akışı
+                    </h3>
+                </div>
+
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+
+                    @for (int i = 0; i < stops.Count; i++)
+                    {
+                        var stop = stops[i];
+                        var place = stop.Place;
+                        var stopTitle = !string.IsNullOrWhiteSpace(stop.CustomTitle) ? stop.CustomTitle : (place?.Name ?? $"Durak #{stop.StopOrder}");
+
+                        <div class="timeline-step">
+                            <div class="timeline-badge">
+                                @stop.StopOrder
+                            </div>
+
+                            <div class="bg-white rounded-3 shadow-sm border p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                                    <h4 class="fw-bold text-dark mb-1">@stopTitle</h4>
+                                    @if (!string.IsNullOrEmpty(stop.SuggestedTime))
+                                    {
+                                        <span class="badge bg-light text-primary border rounded-pill px-3 py-2 fw-semibold">
+                                            <i class="fa fa-hourglass-half me-1"></i>@stop.SuggestedTime
+                                        </span>
+                                    }
+                                </div>
+
+                                @if (place != null)
+                                {
+                                    <div class="row g-3 my-2 align-items-center bg-light rounded-3 p-3 border">
+                                        @if (!string.IsNullOrEmpty(place.ImageUrl))
+                                        {
+                                            var placeImg = (place.ImageUrl.StartsWith("http") || place.ImageUrl.StartsWith("/")) 
+                                                ? place.ImageUrl 
+                                                : (place.ImageUrl.StartsWith("uploads/") ? "/" + place.ImageUrl : "/img/" + System.IO.Path.GetFileName(place.ImageUrl));
+                                            <div class="col-sm-4">
+                                                <img src="@placeImg" alt="@place.Name" class="img-fluid rounded-2 shadow-sm w-100" style="height: 120px; object-fit: cover;" onerror="this.onerror=null; this.src='/img/destination-1.jpg';" />
+                                            </div>
+                                        }
+                                        <div class="col-sm-@(string.IsNullOrEmpty(place.ImageUrl) ? "12" : "8")">
+                                            <div class="d-flex align-items-center gap-2 mb-1">
+                                                <strong class="text-dark">@place.Name</strong>
+                                                <span class="text-warning small"><i class="fa fa-star me-1"></i>@place.Rating</span>
+                                            </div>
+                                            <p class="text-muted small mb-2 text-truncate-2">@place.ShortDescription</p>
+                                            <a href="/mekan-detay/@place.Id" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                                <i class="fa fa-circle-info me-1"></i> Mekan Detayını İncele
+                                            </a>
+                                        </div>
+                                    </div>
+                                }
+
+                                @if (!string.IsNullOrWhiteSpace(stop.Note))
+                                {
+                                    <div class="tip-box mt-3">
+                                        <i class="fa fa-lightbulb me-1 fw-bold"></i>
+                                        <strong>İpucu:</strong> @stop.Note
+                                    </div>
+                                }
+                            </div>
+
+                            @if (!string.IsNullOrWhiteSpace(stop.TransportationTip) && i < stops.Count - 1)
+                            {
+                                <div class="transit-connector">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa fa-arrow-down text-primary me-2"></i>
+                                        <div>
+                                            <span class="fw-bold text-dark d-block">Sonraki Durağa Geçiş:</span>
+                                            <span>@stop.TransportationTip</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Sağ Kolon: Harita ve Rota Özeti -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 100px;">
+                    <!-- Harita Kartı -->
+                    <div class="bg-white rounded-3 shadow-sm border p-4 mb-4">
+                        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa fa-map-location-dot text-primary me-2"></i>Güzergah Haritası
+                        </h5>
+                        <div id="routeMap" style="height: 340px; border-radius: 10px;" class="border"></div>
+                        <small class="text-muted d-block mt-2">
+                            <i class="fa fa-circle-info me-1"></i>Haritadaki işaretçilere tıklayarak durak detaylarını görebilirsiniz.
+                        </small>
+                    </div>
+
+                    <!-- Özet ve Yazdır Kartı -->
+                    <div class="bg-white rounded-3 shadow-sm border p-4">
+                        <h5 class="fw-bold text-dark mb-3 pb-2 border-bottom">
+                            <i class="fa fa-clipboard-check text-primary me-2"></i>Rota Özeti
+                        </h5>
+                        <ul class="list-unstyled mb-4">
+                            <li class="d-flex justify-content-between py-2 border-bottom">
+                                <span class="text-muted"><i class="fa fa-city me-2 text-primary"></i>Şehir:</span>
+                                <strong class="text-dark">@(Model.City?.Name ?? "Türkiye")</strong>
+                            </li>
+                            <li class="d-flex justify-content-between py-2 border-bottom">
+                                <span class="text-muted"><i class="fa fa-flag me-2 text-primary"></i>Toplam Durak:</span>
+                                <strong class="text-dark">@stops.Count Adet</strong>
+                            </li>
+                            <li class="d-flex justify-content-between py-2 border-bottom">
+                                <span class="text-muted"><i class="fa fa-clock me-2 text-primary"></i>Tahmini Süre:</span>
+                                <strong class="text-dark">@Model.EstimatedDuration</strong>
+                            </li>
+                            @if (!string.IsNullOrEmpty(Model.TotalDistance))
+                            {
+                                <li class="d-flex justify-content-between py-2 border-bottom">
+                                    <span class="text-muted"><i class="fa fa-person-walking me-2 text-primary"></i>Yürüyüş Mesafesi:</span>
+                                    <strong class="text-dark">@Model.TotalDistance</strong>
+                                </li>
+                            }
+                        </ul>
+
+                        <button type="button" class="btn btn-primary w-100 py-3 rounded-pill fw-bold btn-print-hide" onclick="window.print()">
+                            <i class="fa fa-print me-2"></i>Bu Rotayı Yazdır / PDF Al
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Harita için durak koordinatları
+            const mapStops = [];
+            @foreach (var s in stops)
+            {
+                if (s.Place != null && s.Place.Latitude != 0 && s.Place.Longitude != 0)
+                {
+                    <text>
+                    mapStops.push({
+                        order: @s.StopOrder,
+                        title: '@Html.Raw(s.CustomTitle?.Replace("'", "\\'") ?? s.Place.Name?.Replace("'", "\\'") ?? "Durak")',
+                        lat: @s.Place.Latitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                        lng: @s.Place.Longitude.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                    });
+                    </text>
+                }
+            }
+
+            // Harita Başlatma (Eğer duraklarda koordinat yoksa Ankara veya default merkeze odaklan)
+            const defaultLat = mapStops.length > 0 ? mapStops[0].lat : 39.9334;
+            const defaultLng = mapStops.length > 0 ? mapStops[0].lng : 32.8597;
+
+            const map = L.map('routeMap').setView([defaultLat, defaultLng], 13);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            const latLngs = [];
+
+            if (mapStops.length > 0) {
+                mapStops.forEach(st => {
+                    const latlng = [st.lat, st.lng];
+                    latLngs.push(latlng);
+
+                    // Özel Durak Rozeti İkonu
+                    const stopIcon = L.divIcon({
+                        className: 'custom-map-marker',
+                        html: `<div style="background-color: #86B817; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid #fff; box-shadow: 0 3px 8px rgba(0,0,0,0.3); font-size: 14px;">${st.order}</div>`,
+                        iconSize: [32, 32],
+                        iconAnchor: [16, 16]
+                    });
+
+                    L.marker(latlng, { icon: stopIcon })
+                        .addTo(map)
+                        .bindPopup(`<b>Durak #${st.order}</b><br>${st.title}`);
+                });
+
+                // Duraklar arası bağlantı çizgisi (Polyline)
+                if (latLngs.length > 1) {
+                    L.polyline(latLngs, {
+                        color: '#86B817',
+                        weight: 4,
+                        opacity: 0.8,
+                        dashArray: '8, 8'
+                    }).addTo(map);
+                }
+
+                // Tüm durakları gösterecek şekilde haritayı sığdır
+                map.fitBounds(L.latLngBounds(latLngs), { padding: [40, 40] });
+            } else {
+                // Koordinat yoksa şehir merkezine tek marker koy
+                L.marker([defaultLat, defaultLng])
+                    .addTo(map)
+                    .bindPopup('<b>@Model.Title</b><br>@(Model.City?.Name ?? "Güzergah")')
+                    .openPopup();
+            }
+        });
+    </script>
+}

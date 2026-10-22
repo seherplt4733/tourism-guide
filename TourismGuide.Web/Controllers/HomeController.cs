@@ -14,12 +14,18 @@ namespace TourismGuide.Web.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string? searchKeyword, int? categoryId)
+        [HttpGet]
+        [Route("")]
+        [Route("Home")]
+        [Route("Home/Index")]
+        [Route("mekanlar")]
+        public async Task<IActionResult> Index(string? searchKeyword, string? search, int? categoryId)
         {
-            ViewBag.Categories = await _context.Categories.ToListAsync();
-            ViewBag.Cities = await _context.Cities.ToListAsync();
+            var activeKeyword = !string.IsNullOrWhiteSpace(search) ? search : searchKeyword;
+            ViewBag.Categories = await _context.Categories.ToListAsync() ?? new List<Category>();
+            ViewBag.Cities = await _context.Cities.ToListAsync() ?? new List<City>();
             ViewBag.CurrentCategoryId = categoryId;
-            ViewBag.SearchKeyword = searchKeyword;
+            ViewBag.SearchKeyword = activeKeyword;
 
             // Tarihi geçmemiş en yakın 6 etkinliği çek
             var now = DateTime.Now;
@@ -28,7 +34,24 @@ namespace TourismGuide.Web.Controllers
                 .Where(e => e.EventDate >= now.Date)
                 .OrderBy(e => e.EventDate)
                 .Take(6)
-                .ToListAsync();
+                .ToListAsync() ?? new List<Event>();
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    ViewBag.UserFavoritePlaceIds = await _context.Favorites
+                        .Where(f => f.UserId == userId)
+                        .Select(f => f.PlaceId)
+                        .ToListAsync() ?? new List<int>();
+
+                    ViewBag.UserAttendedEventIds = await _context.EventAttendances
+                        .Where(ea => ea.UserId == userId)
+                        .Select(ea => ea.EventId)
+                        .ToListAsync() ?? new List<int>();
+                }
+            }
 
             var query = _context.Places
                 .Include(p => p.City)
@@ -36,13 +59,16 @@ namespace TourismGuide.Web.Controllers
                 .AsQueryable();
 
             // Arama filtresi
-            if (!string.IsNullOrEmpty(searchKeyword))
-{
-    query = query.Where(p =>
-        p.Title.Contains(searchKeyword) ||  // Name yerine Title kullan
-        (p.City != null && p.City.Name.Contains(searchKeyword)) ||
-        (p.Category != null && p.Category.Name.Contains(searchKeyword)));
-}
+            if (!string.IsNullOrWhiteSpace(activeKeyword))
+            {
+                var trimmed = activeKeyword.Trim();
+                query = query.Where(p =>
+                    (p.Title != null && p.Title.Contains(trimmed)) ||
+                    (p.City != null && p.City.Name != null && p.City.Name.Contains(trimmed)) ||
+                    (p.Category != null && p.Category.Name != null && p.Category.Name.Contains(trimmed)) ||
+                    (p.ShortDescription != null && p.ShortDescription.Contains(trimmed)) ||
+                    (p.FullDescription != null && p.FullDescription.Contains(trimmed)));
+            }
 
             // Kategori filtresi
             if (categoryId.HasValue)
@@ -50,7 +76,11 @@ namespace TourismGuide.Web.Controllers
                 query = query.Where(p => p.CategoryId == categoryId.Value);
             }
 
-            var resultList = await query.ToListAsync();
+            var resultList = await query
+                .OrderByDescending(p => p.IsFeatured)
+                .ThenByDescending(p => p.Rating)
+                .ThenByDescending(p => p.Id)
+                .ToListAsync();
             return View(resultList);
         }
 

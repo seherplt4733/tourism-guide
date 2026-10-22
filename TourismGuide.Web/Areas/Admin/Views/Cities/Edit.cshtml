@@ -1,0 +1,73 @@
+@model TourismGuide.Entity.City
+@{
+    ViewData["Title"] = "Şehri Düzenle";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">
+                    <i class="fa fa-pen-to-square text-primary me-2"></i>Şehri Düzenle
+                </h2>
+                <p class="text-muted mb-0">"@Model.Name" şehri bilgilerini güncelleyin.</p>
+            </div>
+            <a asp-area="Admin" asp-controller="Cities" asp-action="Index" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fa fa-arrow-left me-1"></i> Listeye Dön
+            </a>
+        </div>
+
+        <div class="admin-card">
+            <form asp-area="Admin" asp-controller="Cities" asp-action="Edit" asp-route-id="@Model.Id" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label asp-for="Name" class="form-label fw-bold">Şehir Adı</label>
+                        <input asp-for="Name" class="form-control" placeholder="Örn: İstanbul" required />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Mevcut Görsel</label>
+                        <div class="d-flex align-items-center mb-2">
+                            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/img/destination-1.jpg" : (Model.ImageUrl.StartsWith("http") || Model.ImageUrl.StartsWith("/") ? Model.ImageUrl : "/img/" + System.IO.Path.GetFileName(Model.ImageUrl)))" 
+                                 alt="@Model.Name" 
+                                 class="rounded border shadow-sm me-3" 
+                                 style="width: 70px; height: 50px; object-fit: cover;" 
+                                 onerror="this.src='/img/destination-1.jpg';" />
+                            <small class="text-muted">@(string.IsNullOrEmpty(Model.ImageUrl) ? "Görsel yok" : Model.ImageUrl)</small>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Yeni Görsel Yükle (Opsiyonel)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*" />
+                        <small class="text-muted">Boş bırakırsanız mevcut görsel korunur.</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="ImageUrl" class="form-label fw-bold">Görsel URL / Dosya Adı (Opsiyonel)</label>
+                        <input asp-for="ImageUrl" class="form-control" placeholder="Mevcut yolu değiştirmek için girin" />
+                        <span asp-validation-for="ImageUrl" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Description" class="form-label fw-bold">Şehir Açıklaması</label>
+                        <textarea asp-for="Description" class="form-control" rows="4" required></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12 text-end pt-3 border-top">
+                        <a asp-area="Admin" asp-controller="Cities" asp-action="Index" class="btn btn-light rounded-pill px-4 me-2">İptal</a>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">
+                            <i class="fa fa-save me-1"></i> Değişiklikleri Kaydet
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
